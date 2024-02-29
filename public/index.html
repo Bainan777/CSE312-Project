@@ -1,0 +1,39 @@
+<html lang="en">
+<head>
+    <title>Watchlist</title>
+    <link rel="stylesheet" type="text/css" href="/public/style.css"/>
+    <link rel="stylesheet" type="text/css" href="/public/nav.css"/>
+    <link rel="icon" type="image/x-icon" href="/public/assets/favicon.ico">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+<body>
+    <!--navbar solution from https://stackoverflow.com/questions/31954089/how-can-i-reuse-a-navigation-bar-on-multiple-pages. copy+pasting this keeps navbar on top-->
+    <div id="nav-placeholder">
+
+    </div>
+    <script>
+        $(function(){
+            $("#nav-placeholder").load("nav.html");
+        });
+    </script>
+    <!--end of navbar-->
+
+    <h1>Currently Watching</h1>
+
+    <table>
+        <tr>
+            <th>Show</th>
+            <th>Left Off On</th>
+        </tr>
+        <tr>
+            <td>Grey's Anatomy</td>
+            <td>Season 3, Episode 5</td>
+        </tr>
+        <tr>
+            <td>Placeholder Show</td>
+            <td>Placeholder Loc</td>
+        </tr>
+    </table>
+
+</body>
+</html>

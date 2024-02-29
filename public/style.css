@@ -1,0 +1,25 @@
+body {
+    background-color: rgb(26, 26, 26);
+    color: white;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+}
+
+h1 {
+    padding-left: 1rem;
+}
+
+table, tr, td, th {
+    border: 1px solid;
+    border-collapse: collapse;
+    border-color: black;
+}
+
+table {
+    width: 100%;
+    background-color: rgb(222, 222, 222);
+    color: black;
+}
+
+table th {
+    font-weight: bold;
+}

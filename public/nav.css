@@ -1,0 +1,62 @@
+.nav-bar {
+    overflow: hidden;
+    background-color: rgb(31, 95, 164);
+}
+
+.nav-bar a {
+    float: left;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.nav-bar a:hover {
+    background-color: rgb(51, 117, 188);
+}
+
+.nav-bar input[type=text] {
+    float: center;
+    padding: 6px;
+    border: none;
+    margin-top: 8px;
+    margin-right: 16px;
+    font-size: 17px;
+  }
+
+.nav-right {
+    float: right;
+}
+
+.nav-right-elem {
+    float: left;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.nav-right div:hover {
+    background-color: rgb(51, 117, 188);
+}
+
+.user-dropdown {
+    overflow: hidden;
+}
+
+.user-drop-button {
+    border: none;
+    outline: none;
+    color: white;
+    background-color: inherit;
+    font-family: inherit;
+    margin: 0;
+}
+
+.logo {
+    height: 20px;
+}
+
+.userpfp {
+    width: 20px;
+}
