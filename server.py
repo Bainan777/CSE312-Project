@@ -58,5 +58,21 @@ def homepage_js():
         response.headers["Content-Type"] = "text/javascript"
     return response
 
+@server.route('/signup.html')
+@server.route('/public/signup.html')
+def signup_html():
+    response = make_response(render_template('signup.html'))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/html"
+    return response
+
+@server.route('/login.html')
+@server.route('/public/login.html')
+def login_html():
+    response = make_response(render_template('login.html'))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/html"
+    return response
+
 if __name__ == '__main__':
     server.run(host='0.0.0.0', port=8080)
