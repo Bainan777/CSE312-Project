@@ -50,6 +50,13 @@ def icon():
         response.headers["Content-Type"] = "image/x-icon"
     return response
     
+@server.route('/public/functions.js')
+def homepage_js():
+    with open('public/functions.js', "rb") as file:
+        response = make_response(render_template('functions.js'))
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Content-Type"] = "text/javascript"
+    return response
 
 if __name__ == '__main__':
     server.run(host='0.0.0.0', port=8080)
