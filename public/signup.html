@@ -16,10 +16,11 @@
 
     <h1>Create Account</h1>
     <div class="form-container">
-        <form action="/path/to/create_account" method="post">
-            <input type="email" id="email" name="email" placeholder="Email" required>
-            <input type="text" id="username" name="username" placeholder="Username" required>
-            <input type="password" id="password" name="password" placeholder="Password" required>
+        <form action="/create_account" method="post">
+            <input type="email" id="signup_email" name="signup_email" placeholder="Email" required>
+            <input type="text" id="signup_username" name="signup_username" placeholder="Username" required>
+            <input type="password" id="signup_password" name="signup_password" placeholder="Password" required>
+            <input type="password" id="signup_re_password" name="signup_re_password" placeholder="Re-type Password" required>
             <button type="submit">Create Account</button>
         </form>
         <p>Already have an account? <a href="/public/login.html">Login</a></p>
