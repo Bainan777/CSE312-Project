@@ -1,11 +1,14 @@
+<body>
 <div class="nav-bar">
             <a href="/public/index.html"><img src="/public/assets/temp-logo.png" alt="A chat bubble emoji acting as a temporary logo." class="logo"></a>
-            <a href="/public/index.html">Home</a>
+            <a href="/">Home</a>
             <a href="#shows">Saved Shows</a>
             <input type="text" placeholder="Search..">
         <div class="nav-right">
-            <a class="nav-right-elem" href="/public/login.html">Login</a>
-            <a class="nav-right-elem" href="/public/signup.html">Sign up</a>
+            <a class="nav-right-elem" id="login" style="visibility: {{ visibility }}" href="/public/login.html">Login</a>
+            <a class="nav-right-elem" id="signup-logout" href={{ href }}>{{logout}}</a>
+            <div class="nav-right-elem" id="user">{{name}}</div>
             <div class="nav-right-elem"><img src="/public/assets/temp-logo.png" class="userpfp"></div>
         </div>
 </div>
+</body>
