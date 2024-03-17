@@ -35,7 +35,32 @@ def nav_css():
 @server.route('/nav.html')
 @server.route('/public/nav.html')
 def nav_html():
-    response = make_response(render_template('nav.html'))
+    token = request.cookies.get("auth_token")
+
+    if token:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        getToken = token_collection.find({"hash-token": str(hash_token)})
+        getToken = list(getToken)
+
+        if len(getToken) != 0:
+            name = "Hello, " + getToken[0]["username"] + "!"
+            logout = "Logout"
+            visibility = "hidden"
+            href = "/logout"
+        else:
+            name = "Guest"
+            logout = "Sign Up"
+            visibility = "visible"
+            href="/public/signup.html"
+    else:
+        name = "Guest"
+        logout = "Sign Up"
+        visibility = "visible"
+        href="/public/signup.html"
+
+    response = make_response(render_template('nav.html',  name=name, logout=logout, visibility=visibility, href=href))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
     return response
@@ -88,18 +113,21 @@ def registration_check():
     username = request.form["signup_username"]
     password = request.form["signup_password"]
     re_password = request.form["signup_re_password"]
-    found_username =  user_collection.find_one({"username": str(username)})
+    found_username =  user_collection.find({"username": str(username)})
+    found_username = list(found_username)
 
     if password != re_password:
         msg = "passwords are not the same"
-    elif found_username != None:
+    elif len(found_username) != 0:
         msg = "Username already existed"
     else:
         password_bytes = password.encode()
         salt = bcrypt.gensalt()
         hash_password = bcrypt.hashpw(password_bytes, salt)
-        user_information_dict = {"username": str(username), "password": hash_password, email: str(email)}
+        user_information_dict = {"username": str(username), "password": hash_password, "email": str(email)}
         user_collection.insert_one(user_information_dict)
+        response = make_response(render_template('index.html'))
+        return response
 
     response = make_response(render_template('signup.html', msg = msg))
     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -111,27 +139,43 @@ def login_check():
     username = request.form["login_username"]
     password = request.form["login_password"]
     password_bytes = password.encode()
-    user =  user_collection.find_one({"username": str(username)})
-    hashed_password = user["password"]
-    check_password = bcrypt.checkpw(password_bytes, hashed_password)
-    if user == None:
+    user =  user_collection.find({"username": str(username)})
+    user = list(user)
+    if len(user) == 0:
         msg = "Incorrect username or password! Please try again"
-    elif check_password:
-        token = uuid.uuid4()
-        token_bytes = str(token).encode()
-        sha256 = hashlib.sha256()
-        sha256.update(token_bytes)
-        hash_token = sha256.hexdigest()
-        token_dict = {"username": str(username), "hash-token": str(hash_token)}
-        token_collection.insert_one(token_dict)
-        response = make_response(render_template('index.html'))
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        response.set_cookie(key = "auth_token", value = str(token), max_age = 3600, httponly = True)
-        return response
     else:
-        msg = "Incorrect username or password! Please try again"
+        hashed_password = user[0]["password"]
+        check_password = bcrypt.checkpw(password_bytes, hashed_password)
+        if check_password:  
+            token = uuid.uuid4()
+            token_bytes = str(token).encode()
+            sha256 = hashlib.sha256()
+            sha256.update(token_bytes)
+            hash_token = sha256.hexdigest()
+            token_dict = {"username": str(username), "hash-token": str(hash_token)}
+            token_collection.insert_one(token_dict)
+            response = make_response(render_template('index.html'))
+            response.headers["X-Content-Type-Options"] = "nosniff"
+            response.set_cookie(key = "auth_token", value = str(token), max_age = 3600, httponly = True)
+            return response
+        else:
+            msg = "Incorrect username or password! Please try again"
 
     response = make_response(render_template('login.html', msg = msg))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
+
+@server.route('/logout')
+def logout_check():
+    token = request.cookies.get("auth_token")
+
+    sha256 = hashlib.sha256()
+    sha256.update(token.encode())
+    hash_token = sha256.hexdigest()
+    token_collection.delete_many({"hash-token": hash_token})
+
+    response = make_response(render_template('index.html'))
+    response.set_cookie(key = "auth_token", value = str(token), max_age = 0, httponly = True)
     response.headers["X-Content-Type-Options"] = "nosniff"
     return response
 
