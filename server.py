@@ -1,4 +1,4 @@
-from flask import Flask, render_template, make_response, request
+from flask import Flask, render_template, make_response, request, redirect
 import bcrypt
 import uuid
 import hashlib
@@ -126,7 +126,7 @@ def registration_check():
         hash_password = bcrypt.hashpw(password_bytes, salt)
         user_information_dict = {"username": str(username), "password": hash_password, "email": str(email)}
         user_collection.insert_one(user_information_dict)
-        response = make_response(render_template('index.html'))
+        response = make_response(redirect("/"))
         return response
 
     response = make_response(render_template('signup.html', msg = msg))
@@ -154,7 +154,7 @@ def login_check():
             hash_token = sha256.hexdigest()
             token_dict = {"username": str(username), "hash-token": str(hash_token)}
             token_collection.insert_one(token_dict)
-            response = make_response(render_template('index.html'))
+            response = make_response(redirect("/"))
             response.headers["X-Content-Type-Options"] = "nosniff"
             response.set_cookie(key = "auth_token", value = str(token), max_age = 3600, httponly = True)
             return response
@@ -174,7 +174,7 @@ def logout_check():
     hash_token = sha256.hexdigest()
     token_collection.delete_many({"hash-token": hash_token})
 
-    response = make_response(render_template('index.html'))
+    response = make_response(redirect("/"))
     response.set_cookie(key = "auth_token", value = str(token), max_age = 0, httponly = True)
     response.headers["X-Content-Type-Options"] = "nosniff"
     return response
