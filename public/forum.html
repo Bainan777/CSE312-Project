@@ -1,0 +1,29 @@
+<html lang="en">
+<head>
+    <title>Forums</title>
+    <link rel="stylesheet" type="text/css" href="/public/style.css"/>
+    <link rel="stylesheet" type="text/css" href="/public/nav.css"/>
+    <link rel="icon" type="image/x-icon" href="/public/assets/favicon.ico">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+<body">
+    <!--navbar solution from https://stackoverflow.com/questions/31954089/how-can-i-reuse-a-navigation-bar-on-multiple-pages. copy+pasting this keeps navbar on top-->
+    <div id="nav-placeholder">
+
+    </div>
+    <script>
+        $(function(){
+            $("#nav-placeholder").load("nav.html");
+        });
+    </script>
+    <!--end of navbar-->
+
+    <div class="post_button">
+        <a href="/create-post" style="color:white; text-decoration: none;">Create Post</a>
+    </div>
+
+    <h1>Forums</h1>
+
+<script src="/public/functions.js"></script>
+</body>
+</html>
