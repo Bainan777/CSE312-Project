@@ -4,12 +4,15 @@ import uuid
 import hashlib
 from markupsafe import escape
 from pymongo import MongoClient
+import random
+import html
 
 mongo_client = MongoClient("mongo")
 db = mongo_client["cse-312-project"]
 user_collection = db["user"]
 token_collection = db["auth_token"]
 post_collection = db["posts"]
+vote_collection = db["upvotes"]
 
 server = Flask(__name__, template_folder='public')
 
@@ -62,12 +65,12 @@ def nav_html():
             name = "Guest"
             logout = "Sign Up"
             visibility = "visible"
-            href="/public/signup.html"
+            href="/signup.html"
     else:
         name = "Guest"
         logout = "Sign Up"
         visibility = "visible"
-        href="/public/signup.html"
+        href="/signup.html"
 
     response = make_response(render_template('nav.html',  name=name, logout=logout, visibility=visibility, href=href))
     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -111,6 +114,14 @@ def signup_html():
 @server.route('/public/login.html')
 def login_html():
     response = make_response(render_template('login.html'))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/html"
+    return response
+
+@server.route('/forum.html')
+@server.route('/public/forum.html')
+def forum_html():
+    response = make_response(render_template('forum.html'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
     return response
@@ -198,7 +209,6 @@ def post_render():
 
 @server.route('/create_post', methods = ['POST'])
 def post_check():
-
     msg = ""
     token = request.cookies.get("auth_token")
 
@@ -208,16 +218,31 @@ def post_check():
         sha256.update(token.encode())
         hash_token = sha256.hexdigest()
         record = token_collection.find_one({"hash-token": hash_token})
-
+        
     if token != None and record != None:
 
         # add some code for storing infomation to databases, feel free to change it and do whatever you want.
         post_title = request.form["post-title"]
         post_content = request.form["post-content"]
 
+        post_title = html.escape(post_title)
+        post_content = html.escape(post_content)
+
+        print(post_title)
+        print(post_content)
+
+        # Database content should be pulled for HTML use
+        post_id = random.randint(1, 9999999999)
+        post_contents = {"username": record["username"], "post_title": str(post_title), "post_content": str(post_content), "id": str(post_id)}
+        vote_contents = {"post_id": str(post_id), "upvotes": "0"}
+
+        post_collection.insert_one(post_contents)
+        vote_collection.insert_one(vote_contents)
+
+        response = make_response(redirect("/forum.html"))
 
     else:
-        msg = "Only logged in user can make a post. Please log in"
+        msg = "Only logged in users can make a post. Please log in"
         response = make_response(render_template('post.html', msg = msg))
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Content-Type"] = "text/html"
