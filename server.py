@@ -2,12 +2,14 @@ from flask import Flask, render_template, make_response, request, redirect
 import bcrypt
 import uuid
 import hashlib
+from markupsafe import escape
 from pymongo import MongoClient
 
 mongo_client = MongoClient("mongo")
 db = mongo_client["cse-312-project"]
 user_collection = db["user"]
 token_collection = db["auth_token"]
+post_collection = db["posts"]
 
 server = Flask(__name__, template_folder='public')
 
@@ -28,6 +30,13 @@ def homepage_css():
 @server.route('/public/nav.css')
 def nav_css():
     response = make_response(render_template('nav.css'))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/css"
+    return response
+
+@server.route('/public/post.css')
+def post_css():
+    response = make_response(render_template('post.css'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/css"
     return response
@@ -177,6 +186,43 @@ def logout_check():
     response = make_response(redirect("/"))
     response.set_cookie(key = "auth_token", value = str(token), max_age = 0, httponly = True)
     response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
+
+@server.route('/create-post')
+def post_render():
+    response = make_response(render_template('post.html'))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/html"
+    return response
+
+
+@server.route('/create_post', methods = ['POST'])
+def post_check():
+
+    msg = ""
+    token = request.cookies.get("auth_token")
+
+    if token != None:
+
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        record = token_collection.find_one({"hash-token": hash_token})
+
+    if token != None and record != None:
+
+        # add some code for storing infomation to databases, feel free to change it and do whatever you want.
+        post_title = request.form["post-title"]
+        post_content = request.form["post-content"]
+
+
+    else:
+        msg = "Only logged in user can make a post. Please log in"
+        response = make_response(render_template('post.html', msg = msg))
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Content-Type"] = "text/html"
+        
+
     return response
 
 if __name__ == '__main__':
