@@ -1,0 +1,27 @@
+<html lang="en">
+<head>
+    <title>Create Post</title>
+    <link rel="stylesheet" type="text/css" href="/public/nav.css"/>
+    <link rel="stylesheet" type="text/css" href="/public/post.css"/>
+    <link rel="icon" type="image/x-icon" href="/public/assets/favicon.ico">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+    <script>
+        $(function(){
+            $("#nav-placeholder").load("nav.html");
+        });
+    </script>
+
+    <h1>Create Post</h1>
+    <div class="post-form-container">
+        <form action="/create_post" method="post"><br>
+            <input class ="post-title" type="text" id="post-title" name="post-title" placeholder="Title" required><br><br>
+            <textarea class ="post-content" type="text" id="post-content" name="post-content" placeholder="Type contents" required></textarea><br>
+            <button class ="post_submit"  id = "post_submit" type="submit">Post</button>
+        </form>
+        <p style="color: rgb(255, 0, 72);">{{msg}}</p>
+    </div>
+</body>
+</html>
