@@ -8,8 +8,7 @@
     <script src="https://kit.fontawesome.com/eaaa649dee.js" crossorigin="anonymous"></script>
     <script src="/public/functions.js" defer></script>
 </head>
-<!-- <body onload="welcome();"> -->
-<body>
+<body onload="welcome();">
     <!--navbar solution from https://stackoverflow.com/questions/31954089/how-can-i-reuse-a-navigation-bar-on-multiple-pages. copy+pasting this keeps navbar on top-->
     <div id="nav-placeholder">
 
@@ -60,7 +59,8 @@
                         </div>
                         <div class="post-upvotes">
                             <div id="upvote-btn-wrapper">
-                                <button onclick="toggleUpvote('{{ post['id'] }}', this)" id="upvote-btn-{{ post['id'] }}" class="{% if username in post['id'] | get_votes %}upvoted{% else %}not-upvoted{% endif %}">
+                                <button onclick="toggleUpvote('{{ post['id'] }}', this)" id="upvote-btn-{{ post['id'] }}" class="{% if username in post['id'] | get_votes %}upvoted{% else %}not-upvoted{% endif %}"
+                                >
                                     <i class="{% if username in post['id'] | get_votes %}fa-solid fa-heart{% else %}fa-regular fa-heart{% endif %}"></i>
                                 </button>
                             </div>
