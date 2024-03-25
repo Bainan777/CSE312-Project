@@ -1,6 +1,4 @@
 body {
-    background-color: black;
-    color: white;
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
 }
 
@@ -8,27 +6,44 @@ h1 {
     padding-left: 1rem;
 }
 
-.post_button {
-    margin-top: 10px;
+.post-btn {
     padding: 5px;
-    float: right;
     background-color: rgb(31, 108, 190);
+    color: white;
 }
 
-table, tr, td, th {
-    border: 1px solid;
-    border-collapse: collapse;
+.post-container {
+    width: 80%;
+    margin: auto;
+    border-radius: 10px;
+    border-style: solid;
     border-color: black;
+    padding: 10px;
 }
 
-table {
-    width: 100%;
-    background-color: rgb(222, 222, 222);
-    color: black;
+.post-wrapper {
+    padding: 10px;
 }
 
-table th {
+.post-username {
+    font-size: 16px;
     font-weight: bold;
 }
 
-/* signup below */
+.post-title {
+    padding-top: 5px;
+    font-size: 18px;
+    text-decoration: underline;
+}
+
+.post-upvotes {
+    padding-top: 5px;
+}
+
+#onboard-header {
+    float: center;
+}
+
+#onboard-btns {
+    display: inline-block;
+}

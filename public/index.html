@@ -5,8 +5,11 @@
     <link rel="stylesheet" type="text/css" href="/public/nav.css"/>
     <link rel="icon" type="image/x-icon" href="/public/assets/favicon.ico">
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://kit.fontawesome.com/eaaa649dee.js" crossorigin="anonymous"></script>
+    <script src="/public/functions.js" defer></script>
 </head>
-<body onload="welcome();">
+<!-- <body onload="welcome();"> -->
+<body>
     <!--navbar solution from https://stackoverflow.com/questions/31954089/how-can-i-reuse-a-navigation-bar-on-multiple-pages. copy+pasting this keeps navbar on top-->
     <div id="nav-placeholder">
 
@@ -18,27 +21,73 @@
     </script>
     <!--end of navbar-->
 
-    <div class="post_button">
-        <a href="/create-post" style="color:white; text-decoration: none;">Create Post</a>
+    {% if token %}
+    <!--shown if user is logged in-->
+    <!-- <div id="posts-container">
+        <div id="create-post-wrapper">
+            <form>
+                <div id="create-post-anime">
+                    <input type="text" id="new-anime" name="new-anime" placeholder="Anime Title" required/>
+                </div>
+                <div id="create-post-rating">
+                    <input type="number" id="new-rating" name="new-rating" min="1" max="5" placeholder="Rating (1-5)" required/>
+                </div>
+                <div id="create-post-review">
+                    <input type="text" id="new-review" name="new-review" placeholder="Write your review" required/>
+                </div>
+                <div class="post-submit">
+                    <button class="post-btn" type="submit">Create Post</button>
+            </div>
+            </form>
+        </div> -->
+        <div class="post-submit">
+            <a class="post-btn" href="/create-post">Create Post</a>
+        </div>
+        <div id="posts-wrapper">
+            <!--where all posts will be viewed-->
+            <ul>
+                {% for post in posts %}
+                <div class="post-container">
+                    <div class="post-wrapper">
+                        <div class="post-username">
+                            @{{ post['username'] }}
+                        </div>
+                        <div class="post-title">
+                            {{ post['post_title'] }}
+                        </div>
+                        <div class="post-content">
+                            {{ post['post_content'] }}
+                        </div>
+                        <div class="post-upvotes">
+                            <div id="upvote-btn-wrapper">
+                                <button onclick="toggleUpvote('{{ post['id'] }}', this)" id="upvote-btn-{{ post['id'] }}" class="{% if username in post['id'] | get_votes %}upvoted{% else %}not-upvoted{% endif %}">
+                                    <i class="{% if username in post['id'] | get_votes %}fa-solid fa-heart{% else %}fa-regular fa-heart{% endif %}"></i>
+                                </button>
+                            </div>
+                            <div id="upvote-count-{{ post['id'] }}">
+                                {{ post['id'] | get_votes | length}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 
-    <h1>Currently Watching</h1>
-
-    <table>
-        <tr>
-            <th>Show</th>
-            <th>Left Off On</th>
-        </tr>
-        <tr>
-            <td>Grey's Anatomy</td>
-            <td>Season 3, Episode 5</td>
-        </tr>
-        <tr>
-            <td>Placeholder Show</td>
-            <td>Placeholder Loc</td>
-        </tr>
-    </table>
-
-<script src="/public/functions.js"></script>
+    {% else %}
+    <!--to be shown if user is not logged in-->
+    <div id="onboarding-container">
+        <div id="onboard-header">Keep track of the anime you love (and hate).</div>
+        <div id="onboard-btns">
+            <div class="signup-btn">
+                <a href="/signup.html">Get Started</a>
+            </div>
+            <div class="login-btn">
+                <a href="/login.html">Login</a>
+            </div>
+        </div>
+    </div> 
+    {% endif %}
 </body>
 </html>
