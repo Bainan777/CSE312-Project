@@ -1,4 +1,5 @@
-from flask import Flask, jsonify, render_template, make_response, request, redirect
+from flask import Flask, jsonify, render_template, make_response, request, redirect, flash
+from werkzeug.utils import secure_filename
 import bcrypt
 import uuid
 import hashlib
@@ -6,6 +7,7 @@ from markupsafe import escape
 from pymongo import MongoClient
 import random
 import html
+import os
 
 mongo_client = MongoClient("mongo")
 db = mongo_client["cse-312-project"]
@@ -60,42 +62,64 @@ def nav_html():
         getToken = list(getToken)
 
         if len(getToken) != 0:
-            name = "Hello, " + getToken[0]["username"] + "!"
+            name = "Hello, " + getToken[0]["username"] + "! "
             logout = "Logout"
             visibility = "hidden"
             href = "/logout"
+            profile_href = "/profile.html"
+
+            getPfp = user_collection.find({"username": getToken[0]["username"]})
+            getPfp = list(getPfp)
+
+            if len(getPfp) != 0:
+                pfp = getPfp[0]["profile-pic"]
+            else:
+                pfp = "default.jpg"
         else:
             name = "Guest"
             logout = "Sign Up"
             visibility = "visible"
             href="/signup.html"
+            profile_href = "/login.html"
+            pfp = "temp-logo.png"
     else:
         name = "Guest"
         logout = "Sign Up"
         visibility = "visible"
         href="/signup.html"
+        pfp = "temp-logo.png"
+        profile_href = "/login.html"
 
-    response = make_response(render_template('nav.html',  name=name, logout=logout, visibility=visibility, href=href))
+    response = make_response(render_template('nav.html',  name=name, pfp=pfp, profile_href=profile_href, logout=logout, visibility=visibility, href=href))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
     return response
 
-@server.route('/public/assets/temp-logo.png')
-def logo():
-    with open("public/assets/temp-logo.png", "rb") as file:
+@server.route('/public/assets/favicon.ico')
+def icon():
+    with open("public/assets/favicon.ico", "rb") as file:
+        byte_string = file.read()
+        response = make_response(byte_string)
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Content-Type"] = "image/x-icon"
+    return response
+
+@server.route('/public/assets/images/profile_pictures/<filename>')
+def getPfps(filename):
+    with open("public/assets/images/profile_pictures/"+filename, "rb") as file:
         byte_string = file.read()
         response = make_response(byte_string)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Content-Type"] = "image/png"
     return response
 
-@server.route('/public/assets/favicon.ico')
-def icon():
-    with open("public/assets/temp-logo.png", "rb") as file:
+@server.route('/public/assets/images/<filename>')
+def getImages(filename):
+    with open("public/assets/images/"+filename, "rb") as file:
         byte_string = file.read()
         response = make_response(byte_string)
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Content-Type"] = "image/x-icon"
+        response.headers["Content-Type"] = "image/png"
     return response
     
 @server.route('/public/functions.js')
@@ -121,10 +145,10 @@ def login_html():
     response.headers["Content-Type"] = "text/html"
     return response
 
-@server.route('/forum.html')
-@server.route('/public/forum.html')
+@server.route('/profile.html')
+@server.route('/public/profile.html')
 def forum_html():
-    response = make_response(render_template('forum.html'))
+    response = make_response(render_template('profile.html'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
     return response
@@ -147,7 +171,7 @@ def registration_check():
         password_bytes = password.encode()
         salt = bcrypt.gensalt()
         hash_password = bcrypt.hashpw(password_bytes, salt)
-        user_information_dict = {"username": str(username), "password": hash_password, "email": str(email)}
+        user_information_dict = {"username": str(username), "password": hash_password, "email": str(email), "profile-pic": "default.jpg"}
         user_collection.insert_one(user_information_dict)
         response = make_response(redirect("/"))
         return response
@@ -297,6 +321,44 @@ def unupvote_post(post_id):
         vote_collection.update_one({'post_id': str(post_id)}, {'$set': {'upvoters': upvoters}})
         return jsonify({'success': True, 'upvoteCount': len(upvoters)})
     return jsonify({'success': False})
+
+PFP_FOLDER = './public/assets/images/profile_pictures'
+PFP_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+server.config['PFP_FOLDER'] = PFP_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in PFP_EXTENSIONS
+
+@server.route('/change-pfp', methods=['POST'])
+def upload_file():
+    if 'file' not in request.files:
+        return make_response(redirect("/profile.html"))
+    file = request.files['file']
+
+    if file.filename == '':
+        return make_response(redirect("/profile.html"))
+    
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(server.config['PFP_FOLDER'], filename))
+
+        token = request.cookies.get("auth_token")
+
+        if token:
+            sha256 = hashlib.sha256()
+            sha256.update(token.encode())
+            hash_token = sha256.hexdigest()
+            getToken = token_collection.find({"hash-token": str(hash_token)})
+            getToken = list(getToken)
+
+            if len(getToken) != 0:
+                username = getToken[0]["username"]
+                user_collection.update_one({"username": str(username)}, {'$set': {'profile-pic': filename}})
+
+    return make_response(redirect("/profile.html"))
+
 
 if __name__ == '__main__':
     server.run(host='0.0.0.0', port=8080)
