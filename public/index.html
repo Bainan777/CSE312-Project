@@ -48,6 +48,7 @@
                 {% for post in posts %}
                 <div class="post-container">
                     <div class="post-wrapper">
+                        <img src="/public/assets/images/profile_pictures/{{ post['username'] | get_pfp }}" class="post-pfp"></div>
                         <div class="post-username">
                             @{{ post['username'] }}
                         </div>

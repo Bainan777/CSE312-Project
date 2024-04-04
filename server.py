@@ -235,7 +235,7 @@ def post_render():
 
 @server.template_filter('get_votes')
 def get_votes(post_id):
-    vote_item = vote_collection.find_one({'post_id':post_id});
+    vote_item = vote_collection.find_one({'post_id':post_id})
     if vote_item:
         return vote_item['upvoters']
     else:
@@ -250,6 +250,16 @@ def get_user(token):
 
     if token != None and record != None: 
         return record['username']
+    else:
+        return None
+
+@server.template_filter('get_pfp')
+def get_pfp(username):
+    if username != None:
+        record = user_collection.find_one({"username": username})
+
+    if username != None and record != None:
+        return record['profile-pic']
     else:
         return None
 
