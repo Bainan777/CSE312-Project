@@ -8,6 +8,7 @@ from pymongo import MongoClient
 import random
 import html
 import os
+from flask_socketio import SocketIO, emit, send
 
 mongo_client = MongoClient("mongo")
 db = mongo_client["cse-312-project"]
@@ -15,8 +16,10 @@ user_collection = db["user"]
 token_collection = db["auth_token"]
 post_collection = db["posts"]
 vote_collection = db["upvoters"]
+chat_collection = db["chat"]
 
 server = Flask(__name__, template_folder='public')
+socketio = SocketIO(server)
 
 @server.route('/')
 @server.route('/public/index.html')
@@ -129,6 +132,13 @@ def homepage_js():
     response.headers["Content-Type"] = "text/javascript"
     return response
 
+@server.route('/public/websocket.js')
+def websocket_js():
+    response = make_response(render_template('websocket.js'))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/javascript"
+    return response
+
 @server.route('/signup.html')
 @server.route('/public/signup.html')
 def signup_html():
@@ -229,6 +239,13 @@ def logout_check():
 @server.route('/create-post')
 def post_render():
     response = make_response(render_template('post.html'))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/html"
+    return response
+
+@server.route('/chat-room')
+def direct_message_render():
+    response = make_response(render_template('chatroom.html'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
     return response
@@ -369,6 +386,41 @@ def upload_file():
 
     return make_response(redirect("/profile.html"))
 
+@server.route("/chat-history")
+def chat_history():
+
+    token = request.cookies.get("auth_token")
+
+    if token:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        getToken = token_collection.find({"hash-token": str(hash_token)})
+        getToken = list(getToken)
+
+        if len(getToken) != 0:
+            username = getToken[0]["username"]
+            button_tag = f'<button id="send-button" onclick="send_message(\'{username}\')">Send</button>'
+
+    else:
+        return make_response(redirect("/login.html"))
+    
+    chatHistory = chat_collection.find({})
+    messages_dict = []
+    for message in chatHistory:
+        message_dict = {"username" :message["username"], "message": message["message"]}
+        messages_dict.append(message_dict)
+    
+    return jsonify({"button_tag": button_tag, "chat_history": messages_dict})
+
+
+@socketio.on('chat-message') 
+def connect_handler(data_json):
+
+    message_dict = {"username" :data_json["sender"], "message": data_json["message"]}
+    chat_collection.insert_one({"username" :data_json["sender"], "message": data_json["message"]})
+
+    emit("receive_message", message_dict, broadcast= True)
 
 if __name__ == '__main__':
-    server.run(host='0.0.0.0', port=8080)
+    socketio.run(server, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
