@@ -28,6 +28,7 @@ def homepage():
 
     response = make_response(render_template('index.html', posts=posts, token=token))
     response.headers["X-Content-Type-Options"] = "nosniff"
+    emit('home_load', {'posts':posts})
     return response
 
 @server.route('/public/style.css')
@@ -248,17 +249,6 @@ def direct_message_render():
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
     return response
-
-# @server.template_filter('get_votes')
-# def get_votes(post_id):
-#     vote_item = vote_collection.find_one({'post_id':post_id})
-#     print(f'server.py > get_votes: this is vote_item: {vote_item}')
-#     if vote_item:
-#         print(f'server.py > get_votes: vote_item exists! upvoters is: {vote_item["upvoters"]}')
-#         return vote_item['upvoters']
-#     else:
-#         print(f'server.py > get_votes: vote_item does not exist :(')
-#         return []
 
 def get_user(token):
     if token != None:
