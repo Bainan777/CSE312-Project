@@ -19,7 +19,7 @@ vote_collection = db["upvoters"]
 chat_collection = db["chat"]
 
 server = Flask(__name__, template_folder='public')
-socketio = SocketIO(server)
+socketio = SocketIO(server, transport = ['websocket'])
 
 @server.route('/')
 @server.route('/public/index.html')
@@ -41,6 +41,13 @@ def homepage_css():
 @server.route('/public/nav.css')
 def nav_css():
     response = make_response(render_template('nav.css'))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/css"
+    return response
+
+@server.route('/public/chatroom.css')
+def chat_css():
+    response = make_response(render_template('chatroom.css'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/css"
     return response
@@ -400,7 +407,7 @@ def chat_history():
 
         if len(getToken) != 0:
             username = getToken[0]["username"]
-            button_tag = f'<button id="send-button" onclick="send_message(\'{username}\')">Send</button>'
+            username_tag = f'<input id="username" value="{username}" hidden>'
 
     else:
         return make_response(redirect("/login.html"))
@@ -411,14 +418,14 @@ def chat_history():
         message_dict = {"username" :message["username"], "message": message["message"]}
         messages_dict.append(message_dict)
     
-    return jsonify({"button_tag": button_tag, "chat_history": messages_dict})
+    return jsonify({"button_tag": username_tag, "chat_history": messages_dict})
 
 
 @socketio.on('chat-message') 
 def connect_handler(data_json):
 
-    message_dict = {"username" :data_json["sender"], "message": data_json["message"]}
-    chat_collection.insert_one({"username" :data_json["sender"], "message": data_json["message"]})
+    message_dict = {"username" :data_json["sender"], "message": html.escape(data_json["message"])}
+    chat_collection.insert_one({"username" :data_json["sender"], "message": html.escape(data_json["message"])})
 
     emit("receive_message", message_dict, broadcast= True)
 

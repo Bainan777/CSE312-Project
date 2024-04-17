@@ -1,14 +1,30 @@
 <html lang="en">
 <head>
     <title>Direct Message</title>
-    <link rel="stylesheet" type = "text/css" herf ="/public/chatroom.css"/>
+    <link rel="stylesheet" type = "text/css" href ="/public/chatroom.css"/>
+    <link rel="stylesheet" type="text/css" href="/public/nav.css"/>
+    <link rel="icon" type="image/x-icon" href="/public/assets/favicon.ico">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 </head>
 <body onload = "initalize()">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
 <script>
-    var socket = io();
+    $(function(){
+            $("#nav-placeholder").load("nav.html");
+    });
+    var socket = io({transports:['websocket']});
     
     function initalize() {
+
+        let chatBox = document.getElementById("chat-text-box");
+
+        document.addEventListener("keypress", function (event) {
+        if (event.code === "Enter") {
+            const username = document.getElementById("username").value
+            send_message(username);
+        }
+        });
+
         const request = new XMLHttpRequest();
         request.onreadystatechange  = function() {
             if (this.readyState == 4 && this.status == 200) {
@@ -22,20 +38,21 @@
                     }
                 }
             }
-        }
+        };
         request.open("GET", "/chat-history");
         request.send()
     }
 
-    function send_message(username) {
-
+    function send_message() {
+        
+        const username = document.getElementById("username").value
         const chatBox = document.getElementById("chat-text-box");
         const message = chatBox.value;
         chatBox.value = "";
         
         socket.emit('chat-message', {sender: username, message: message});
 
-    }
+    };
 
     function addNewMessage(messageData) {
         const user = messageData.username;
@@ -43,13 +60,15 @@
         let messageHTML = "<div class = 'message' id = 'message'><b>" + user + "</b>: " + msg + "</div>"
         const chatMessage = document.getElementById("chat");
         chatMessage.innerHTML += messageHTML
-    }
+    };
 
     socket.on('receive_message', function(data){
         addNewMessage(data)
     });
 
 </script>
+    <div id="nav-placeholder"></div>
+    
     <h1>Chat room</h1>
 
     <div class = "chat-container" id = "chat-container">
@@ -59,6 +78,8 @@
 
         <div class = "send-message" id = "send-message">
             <input id = "chat-text-box" type = "text">
+            <button id="send-button" onclick="send_message()">Send</button>
+
         </div>
     </div>
 </body>
