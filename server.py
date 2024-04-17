@@ -117,33 +117,47 @@ def icon():
 
 @server.route('/public/assets/images/profile_pictures/<filename>')
 def getPfps(filename):
-    with open("public/assets/images/profile_pictures/"+filename, "rb") as file:
-        byte_string = file.read()
-        response = make_response(byte_string)
-        response.headers["X-Content-Type-Options"] = "nosniff"
+    filename = filename.replace("/", "")
 
-        if jpeg_sig in byte_string or (jpeg_sig2 in byte_string and jpeg_sig3 in byte_string):
-            response.headers["Content-Type"] = "image/jpeg"
-        elif png_sig in byte_string:
-            response.headers["Content-Type"] = "image/png"
-        elif gif_sig in byte_string or gif_sig2 in byte_string:
-            response.headers["Content-Type"] = "image/gif"
+    try:
+        with open("public/assets/images/profile_pictures/"+filename, "rb") as file:
+            byte_string = file.read()
+            response = make_response(byte_string)
+            response.headers["X-Content-Type-Options"] = "nosniff"
+
+            if jpeg_sig in byte_string or (jpeg_sig2 in byte_string and jpeg_sig3 in byte_string):
+                response.headers["Content-Type"] = "image/jpeg"
+            elif png_sig in byte_string:
+                response.headers["Content-Type"] = "image/png"
+            elif gif_sig in byte_string or gif_sig2 in byte_string:
+                response.headers["Content-Type"] = "image/gif"
+            else:
+                return make_response("Not an image", 404)
+    except IOError:
+        return make_response("File not found", 404)
 
     return response
 
 @server.route('/public/assets/images/<filename>')
 def getImages(filename):
-    with open("public/assets/images/"+filename, "rb") as file:
-        byte_string = file.read()
-        response = make_response(byte_string)
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        
-        if jpeg_sig in byte_string or (jpeg_sig2 in byte_string and jpeg_sig3 in byte_string):
-            response.headers["Content-Type"] = "image/jpeg"
-        elif png_sig in byte_string:
-            response.headers["Content-Type"] = "image/png"
-        elif gif_sig in byte_string or gif_sig2 in byte_string:
-            response.headers["Content-Type"] = "image/gif"
+    filename = filename.replace("/", "")
+
+    try:
+        with open("public/assets/images/"+filename, "rb") as file:
+            byte_string = file.read()
+            response = make_response(byte_string)
+            response.headers["X-Content-Type-Options"] = "nosniff"
+            
+            if jpeg_sig in byte_string or (jpeg_sig2 in byte_string and jpeg_sig3 in byte_string):
+                response.headers["Content-Type"] = "image/jpeg"
+            elif png_sig in byte_string:
+                response.headers["Content-Type"] = "image/png"
+            elif gif_sig in byte_string or gif_sig2 in byte_string:
+                response.headers["Content-Type"] = "image/gif"
+            else:
+                return make_response("Not an image", 404)
+    except IOError:
+        return make_response("File not found", 404)
     
     return response
     
@@ -405,31 +419,44 @@ def allowed_file(filename):
 
 @server.route('/change-pfp', methods=['POST'])
 def upload_file():
+    token = request.cookies.get("auth_token")
+
+    if token:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        getToken = token_collection.find({"hash-token": str(hash_token)})
+        getToken = list(getToken)
+
+        if len(getToken) != 0:
+            name = "@"+getToken[0]["username"]
+
+            getPfp = user_collection.find({"username": getToken[0]["username"]})
+            getPfp = list(getPfp)
+
+        if len(getPfp) != 0:
+            pfp = getPfp[0]["profile-pic"]
+        else:
+            pfp = "default.jpg"
+    else:
+        return make_response(render_template("/profile.html", msg="Only registered users can change their profile pictures!", name="Guest", pfp="default.jpg", color="red"))
+
     if 'file' not in request.files:
-        return make_response(redirect("/profile.html"))
+        return make_response(render_template("/profile.html", msg="There is no file part!", name=name, pfp=pfp, color="red"))
     file = request.files['file']
 
     if file.filename == '':
-        return make_response(redirect("/profile.html"))
+        return make_response(render_template("/profile.html", msg="You haven't uploaded any file!", name=name, pfp=pfp, color="red"))
     
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(server.config['PFP_FOLDER'], filename))
 
-        token = request.cookies.get("auth_token")
+        username = getToken[0]["username"]
+        user_collection.update_one({"username": str(username)}, {'$set': {'profile-pic': filename}})
 
-        if token:
-            sha256 = hashlib.sha256()
-            sha256.update(token.encode())
-            hash_token = sha256.hexdigest()
-            getToken = token_collection.find({"hash-token": str(hash_token)})
-            getToken = list(getToken)
 
-            if len(getToken) != 0:
-                username = getToken[0]["username"]
-                user_collection.update_one({"username": str(username)}, {'$set': {'profile-pic': filename}})
-
-    return make_response(redirect("/profile.html"))
+    return make_response(render_template("/profile.html", msg="Profile picture updated!", name=name, color="blueviolet", pfp=filename))
 
 @server.route("/chat-history")
 def chat_history():
