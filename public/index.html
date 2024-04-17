@@ -7,8 +7,9 @@
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
     <script src="https://kit.fontawesome.com/eaaa649dee.js" crossorigin="anonymous"></script>
     <script src="/public/functions.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.js"></script> <!--socket.io-->
 </head>
-<body onload="welcome()">
+<body onload="welcome();">
     <!--navbar solution from https://stackoverflow.com/questions/31954089/how-can-i-reuse-a-navigation-bar-on-multiple-pages. copy+pasting this keeps navbar on top-->
     <div id="nav-placeholder">
 
@@ -41,9 +42,6 @@
         </div> -->
         <div class="post-submit">
             <a class="post-btn" href="/create-post">Create Post</a>
-        </div><br><br>
-        <div class="post-submit">
-            <a class="post-btn" href="/chat-room">Chat Room</a>
         </div>
         <div id="posts-wrapper">
             <!--where all posts will be viewed-->
@@ -51,7 +49,6 @@
                 {% for post in posts %}
                 <div class="post-container">
                     <div class="post-wrapper">
-                        <img src="/public/assets/images/profile_pictures/{{ post['username'] | get_pfp }}" class="post-pfp"></div>
                         <div class="post-username">
                             @{{ post['username'] }}
                         </div>
@@ -63,13 +60,13 @@
                         </div>
                         <div class="post-upvotes">
                             <div id="upvote-btn-wrapper">
-                                <button onclick="toggleUpvote('{{ post['id'] }}', this)" id="upvote-btn-{{ post['id'] }}" class="{% if username in post['id'] | get_votes %}upvoted{% else %}not-upvoted{% endif %}"
-                                >
-                                    <i class="{% if username in post['id'] | get_votes %}fa-solid fa-heart{% else %}fa-regular fa-heart{% endif %}"></i>
-                                </button>
+                                <button onClick="upvote('{{ post.id }}')"><i class="fa-solid fa-circle-up"></i></button>
                             </div>
-                            <div id="upvote-count-{{ post['id'] }}">
-                                {{ post['id'] | get_votes | length}}
+                            <div id="downvote-btn-wrapper">
+                                <button onClick="downvote('{{ post.id }}')"><i class="fa-solid fa-circle-down"></i></button>
+                            </div>
+                            <div id="vote-count-{{ post['id'] }}">
+                                {{ (post.upvotes | length) - (post.downvotes | length)}}
                             </div>
                         </div>
                     </div>
@@ -78,6 +75,25 @@
             </ul>
         </div>
     </div>
+
+    <script>
+        let socket = io();
+
+        function upvote(postID) {
+            socket.emit('upvote', postID);
+        }
+
+        function downvote(postID) {
+            socket.emit('downvote', postID);
+        }
+
+        socket.on('vote_update', function(data) {
+            let postID = data.post_id;
+            let votes = document.getElementById(`vote-count-${postID}`);
+            votes.textContent = data.votes;
+        })
+
+    </script>
 
     {% else %}
     <!--to be shown if user is not logged in-->
