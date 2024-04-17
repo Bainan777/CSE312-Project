@@ -21,6 +21,14 @@ chat_collection = db["chat"]
 server = Flask(__name__, template_folder='public')
 socketio = SocketIO(server)
 
+jpeg_sig = bytes.fromhex('FF D8 FF E0 00 10 4A 46 49 46 00 01')
+jpeg_sig2 = b"Exif\x00\x00"
+jpeg_sig3 = b'\xff\xd8\xff\xe1'
+png_sig = bytes.fromhex('89 50 4E 47 0D 0A 1A 0A')
+    
+gif_sig = bytes.fromhex("47 49 46 38 39 61")
+gif_sig2 = bytes.fromhex("47 49 46 38 37 61")
+
 @server.route('/')
 @server.route('/public/index.html')
 def homepage():
@@ -113,7 +121,14 @@ def getPfps(filename):
         byte_string = file.read()
         response = make_response(byte_string)
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Content-Type"] = "image/png"
+
+        if jpeg_sig in byte_string or (jpeg_sig2 in byte_string and jpeg_sig3 in byte_string):
+            response.headers["Content-Type"] = "image/jpeg"
+        elif png_sig in byte_string:
+            response.headers["Content-Type"] = "image/png"
+        elif gif_sig in byte_string or gif_sig2 in byte_string:
+            response.headers["Content-Type"] = "image/gif"
+
     return response
 
 @server.route('/public/assets/images/<filename>')
@@ -122,7 +137,14 @@ def getImages(filename):
         byte_string = file.read()
         response = make_response(byte_string)
         response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Content-Type"] = "image/png"
+        
+        if jpeg_sig in byte_string or (jpeg_sig2 in byte_string and jpeg_sig3 in byte_string):
+            response.headers["Content-Type"] = "image/jpeg"
+        elif png_sig in byte_string:
+            response.headers["Content-Type"] = "image/png"
+        elif gif_sig in byte_string or gif_sig2 in byte_string:
+            response.headers["Content-Type"] = "image/gif"
+    
     return response
     
 @server.route('/public/functions.js')
@@ -157,8 +179,31 @@ def login_html():
 
 @server.route('/profile.html')
 @server.route('/public/profile.html')
-def forum_html():
-    response = make_response(render_template('profile.html'))
+def profile_html():
+    token = request.cookies.get("auth_token")
+
+    if token:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        getToken = token_collection.find({"hash-token": str(hash_token)})
+        getToken = list(getToken)
+
+        if len(getToken) != 0:
+            name = "@"+getToken[0]["username"]
+
+            getPfp = user_collection.find({"username": getToken[0]["username"]})
+            getPfp = list(getPfp)
+
+        if len(getPfp) != 0:
+            pfp = getPfp[0]["profile-pic"]
+        else:
+            pfp = "default.jpg"
+    else:
+        name = "Guest"
+        pfp = "temp-logo.png"
+
+    response = make_response(render_template('profile.html', name=name, pfp=pfp))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
     return response
