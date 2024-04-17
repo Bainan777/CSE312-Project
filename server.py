@@ -347,7 +347,7 @@ def upvote_post(post_id):
         downvoters.remove(username)
         post_collection.update_one({'id': post_id}, {'$set': {'downvotes':downvoters}})
 
-    emit('vote_update', {'post_id': post_id, 'votes': len(upvoters) - len(downvoters)})
+    emit('vote_update', {'post_id': post_id, 'votes': len(upvoters) - len(downvoters), 'upvoted':True, 'downvoted':False})
 
 @socketio.on('downvote')
 def downvote_post(post_id):
@@ -374,7 +374,7 @@ def downvote_post(post_id):
         upvoters.remove(username)
         post_collection.update_one({'id': post_id}, {'$set':{'upvotes':upvoters}})
 
-    emit('vote_update', {'post_id': post_id, 'votes': len(upvoters) - len(downvoters)})
+    emit('vote_update', {'post_id': post_id, 'votes': len(upvoters) - len(downvoters), 'upvoted':False, 'downvoted':True})
 
 PFP_FOLDER = './public/assets/images/profile_pictures'
 PFP_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
