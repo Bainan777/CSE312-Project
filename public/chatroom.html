@@ -12,7 +12,9 @@
     $(function(){
             $("#nav-placeholder").load("nav.html");
     });
-    var socket = io({transports:['websocket']});
+
+    // use var socket = io({transports:['websocket']}); on localhost
+    var socket = io('https://cse-project777.us',{transports:['websocket']});
     
     function initalize() {
 
