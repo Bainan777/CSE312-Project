@@ -18,7 +18,15 @@ post_collection = db["posts"]
 chat_collection = db["chat"]
 
 server = Flask(__name__, template_folder='public')
-socketio = SocketIO(server)
+socketio = SocketIO(server, transport = ['websocket'])
+
+jpeg_sig = bytes.fromhex('FF D8 FF E0 00 10 4A 46 49 46 00 01')
+jpeg_sig2 = b"Exif\x00\x00"
+jpeg_sig3 = b'\xff\xd8\xff\xe1'
+png_sig = bytes.fromhex('89 50 4E 47 0D 0A 1A 0A')
+    
+gif_sig = bytes.fromhex("47 49 46 38 39 61")
+gif_sig2 = bytes.fromhex("47 49 46 38 37 61")
 
 @server.route('/')
 @server.route('/public/index.html')
@@ -41,6 +49,13 @@ def homepage_css():
 @server.route('/public/nav.css')
 def nav_css():
     response = make_response(render_template('nav.css'))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/css"
+    return response
+
+@server.route('/public/chatroom.css')
+def chat_css():
+    response = make_response(render_template('chatroom.css'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/css"
     return response
@@ -109,20 +124,48 @@ def icon():
 
 @server.route('/public/assets/images/profile_pictures/<filename>')
 def getPfps(filename):
-    with open("public/assets/images/profile_pictures/"+filename, "rb") as file:
-        byte_string = file.read()
-        response = make_response(byte_string)
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Content-Type"] = "image/png"
+    filename = filename.replace("/", "")
+
+    try:
+        with open("public/assets/images/profile_pictures/"+filename, "rb") as file:
+            byte_string = file.read()
+            response = make_response(byte_string)
+            response.headers["X-Content-Type-Options"] = "nosniff"
+
+            if jpeg_sig in byte_string or (jpeg_sig2 in byte_string and jpeg_sig3 in byte_string):
+                response.headers["Content-Type"] = "image/jpeg"
+            elif png_sig in byte_string:
+                response.headers["Content-Type"] = "image/png"
+            elif gif_sig in byte_string or gif_sig2 in byte_string:
+                response.headers["Content-Type"] = "image/gif"
+            else:
+                return make_response("Not an image", 404)
+    except IOError:
+        return make_response("File not found", 404)
+
     return response
 
 @server.route('/public/assets/images/<filename>')
 def getImages(filename):
-    with open("public/assets/images/"+filename, "rb") as file:
-        byte_string = file.read()
-        response = make_response(byte_string)
-        response.headers["X-Content-Type-Options"] = "nosniff"
-        response.headers["Content-Type"] = "image/png"
+    filename = filename.replace("/", "")
+
+    try:
+        with open("public/assets/images/"+filename, "rb") as file:
+            byte_string = file.read()
+            response = make_response(byte_string)
+            response.headers["X-Content-Type-Options"] = "nosniff"
+            
+            if jpeg_sig in byte_string or (jpeg_sig2 in byte_string and jpeg_sig3 in byte_string):
+                response.headers["Content-Type"] = "image/jpeg"
+            elif png_sig in byte_string:
+                response.headers["Content-Type"] = "image/png"
+            elif gif_sig in byte_string or gif_sig2 in byte_string:
+                response.headers["Content-Type"] = "image/gif"
+            else:
+                return make_response("Not an image", 404)
+    except IOError:
+        return make_response("File not found", 404)
+    
     return response
     
 @server.route('/public/functions.js')
@@ -157,8 +200,31 @@ def login_html():
 
 @server.route('/profile.html')
 @server.route('/public/profile.html')
-def forum_html():
-    response = make_response(render_template('profile.html'))
+def profile_html():
+    token = request.cookies.get("auth_token")
+
+    if token:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        getToken = token_collection.find({"hash-token": str(hash_token)})
+        getToken = list(getToken)
+
+        if len(getToken) != 0:
+            name = "@"+getToken[0]["username"]
+
+            getPfp = user_collection.find({"username": getToken[0]["username"]})
+            getPfp = list(getPfp)
+
+        if len(getPfp) != 0:
+            pfp = getPfp[0]["profile-pic"]
+        else:
+            pfp = "default.jpg"
+    else:
+        name = "Guest"
+        pfp = "temp-logo.png"
+
+    response = make_response(render_template('profile.html', name=name, pfp=pfp))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
     return response
@@ -377,31 +443,44 @@ def allowed_file(filename):
 
 @server.route('/change-pfp', methods=['POST'])
 def upload_file():
+    token = request.cookies.get("auth_token")
+
+    if token:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        getToken = token_collection.find({"hash-token": str(hash_token)})
+        getToken = list(getToken)
+
+        if len(getToken) != 0:
+            name = "@"+getToken[0]["username"]
+
+            getPfp = user_collection.find({"username": getToken[0]["username"]})
+            getPfp = list(getPfp)
+
+        if len(getPfp) != 0:
+            pfp = getPfp[0]["profile-pic"]
+        else:
+            pfp = "default.jpg"
+    else:
+        return make_response(render_template("/profile.html", msg="Only registered users can change their profile pictures!", name="Guest", pfp="default.jpg", color="red"))
+
     if 'file' not in request.files:
-        return make_response(redirect("/profile.html"))
+        return make_response(render_template("/profile.html", msg="There is no file part!", name=name, pfp=pfp, color="red"))
     file = request.files['file']
 
     if file.filename == '':
-        return make_response(redirect("/profile.html"))
+        return make_response(render_template("/profile.html", msg="You haven't uploaded any file!", name=name, pfp=pfp, color="red"))
     
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(server.config['PFP_FOLDER'], filename))
 
-        token = request.cookies.get("auth_token")
+        username = getToken[0]["username"]
+        user_collection.update_one({"username": str(username)}, {'$set': {'profile-pic': filename}})
 
-        if token:
-            sha256 = hashlib.sha256()
-            sha256.update(token.encode())
-            hash_token = sha256.hexdigest()
-            getToken = token_collection.find({"hash-token": str(hash_token)})
-            getToken = list(getToken)
 
-            if len(getToken) != 0:
-                username = getToken[0]["username"]
-                user_collection.update_one({"username": str(username)}, {'$set': {'profile-pic': filename}})
-
-    return make_response(redirect("/profile.html"))
+    return make_response(render_template("/profile.html", msg="Profile picture updated!", name=name, color="blueviolet", pfp=filename))
 
 @server.route("/chat-history")
 def chat_history():
@@ -417,7 +496,7 @@ def chat_history():
 
         if len(getToken) != 0:
             username = getToken[0]["username"]
-            button_tag = f'<button id="send-button" onclick="send_message(\'{username}\')">Send</button>'
+            username_tag = f'<input id="username" value="{username}" hidden>'
 
     else:
         return make_response(redirect("/login.html"))
@@ -428,14 +507,14 @@ def chat_history():
         message_dict = {"username" :message["username"], "message": message["message"]}
         messages_dict.append(message_dict)
     
-    return jsonify({"button_tag": button_tag, "chat_history": messages_dict})
+    return jsonify({"button_tag": username_tag, "chat_history": messages_dict})
 
 
 @socketio.on('chat-message') 
 def connect_handler(data_json):
 
-    message_dict = {"username" :data_json["sender"], "message": data_json["message"]}
-    chat_collection.insert_one({"username" :data_json["sender"], "message": data_json["message"]})
+    message_dict = {"username" :data_json["sender"], "message": html.escape(data_json["message"])}
+    chat_collection.insert_one({"username" :data_json["sender"], "message": html.escape(data_json["message"])})
 
     emit("receive_message", message_dict, broadcast= True)
 
