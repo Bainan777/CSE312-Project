@@ -18,12 +18,11 @@
     </script>
     <!--end of navbar-->
 
-    <div class="post_button">
-        <a href="/create-post" style="color:white; text-decoration: none;">Create Post</a>
-    </div>
-
     <h1>Profile</h1>
 
+    <img src="/public/assets/images/profile_pictures/{{pfp}}" class="profilepfp"></a>
+    <h2>{{name}}</h2><br>
+    
     <form action="/change-pfp" id="pfp-form" method="post" enctype="multipart/form-data">
         <input type="file" name="file">
         <input type="submit" value="Upload">

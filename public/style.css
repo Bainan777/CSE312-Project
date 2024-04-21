@@ -80,3 +80,10 @@ body {
 #onboard-btns {
     display: inline-block;
 }
+
+.profilepfp {
+    vertical-align: middle;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
