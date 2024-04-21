@@ -15,7 +15,6 @@ db = mongo_client["cse-312-project"]
 user_collection = db["user"]
 token_collection = db["auth_token"]
 post_collection = db["posts"]
-vote_collection = db["upvoters"]
 chat_collection = db["chat"]
 
 server = Flask(__name__, template_folder='public')
@@ -37,6 +36,7 @@ def homepage():
 
     response = make_response(render_template('index.html', posts=posts, token=token))
     response.headers["X-Content-Type-Options"] = "nosniff"
+    emit('home_load', {'posts':posts})
     return response
 
 @server.route('/public/style.css')
@@ -316,14 +316,6 @@ def direct_message_render():
     response.headers["Content-Type"] = "text/html"
     return response
 
-@server.template_filter('get_votes')
-def get_votes(post_id):
-    vote_item = vote_collection.find_one({'post_id':post_id})
-    if vote_item:
-        return vote_item['upvoters']
-    else:
-        return []
-
 def get_user(token):
     if token != None:
         sha256 = hashlib.sha256()
@@ -372,11 +364,9 @@ def post_check():
 
         # Database content should be pulled for HTML use
         post_id = random.randint(1, 9999999999)
-        post_contents = {"username": record["username"], "post_title": str(post_title), "post_content": str(post_content), "id": str(post_id)}
-        vote_contents = {"post_id": str(post_id), "upvoters": []}
+        post_contents = {"username": record["username"], "post_title": str(post_title), "post_content": str(post_content), "id": str(post_id), "upvotes": [], "downvotes": []}
 
         post_collection.insert_one(post_contents)
-        vote_collection.insert_one(vote_contents)
 
         response = make_response(redirect("/public/index.html"))
 
@@ -388,32 +378,59 @@ def post_check():
 
     return response
 
-@server.route('/upvote/<post_id>', methods=['POST'])
+@socketio.on('upvote')
 def upvote_post(post_id):
+    upvoters = post_collection.find_one({'id': post_id})
+    downvoters = []
+    
+    if upvoters:
+        downvoters = upvoters['downvotes']
+        upvoters = upvoters['upvotes']
+    else:
+        upvoters = []
+    
     token = request.cookies.get("auth_token")
-
-    upvoters = get_votes(post_id)
     username = get_user(token)
-
+    
     if username not in upvoters:
         upvoters.append(username)
-        vote_collection.update_one({'post_id': str(post_id)}, {'$set': {'upvoters': upvoters}})
-        return jsonify({'success': True, 'upvoteCount': len(upvoters)})
-    
-    return jsonify({'success': False})
-
-@server.route('/un-upvote/<post_id>', methods=['POST'])
-def unupvote_post(post_id):
-    token = request.cookies.get("auth_token")
-
-    upvoters = get_votes(post_id)
-    username = get_user(token)
-    
-    if (username in upvoters):
+    else:
         upvoters.remove(username)
-        vote_collection.update_one({'post_id': str(post_id)}, {'$set': {'upvoters': upvoters}})
-        return jsonify({'success': True, 'upvoteCount': len(upvoters)})
-    return jsonify({'success': False})
+
+    post_collection.update_one({'id': post_id}, {'$set':{'upvotes':upvoters}})
+
+    if username in downvoters: 
+        downvoters.remove(username)
+        post_collection.update_one({'id': post_id}, {'$set': {'downvotes':downvoters}})
+
+    emit('vote_update', {'post_id': post_id, 'votes': len(upvoters) - len(downvoters), 'upvoted':True, 'downvoted':False})
+
+@socketio.on('downvote')
+def downvote_post(post_id):
+    downvoters = post_collection.find_one({'id': post_id})
+    upvoters = []
+
+    if downvoters: 
+        upvoters = downvoters['upvotes']
+        downvoters = downvoters['downvotes']
+    else:
+        downvoters = []
+    
+    token = request.cookies.get("auth_token")
+    username = get_user(token)
+
+    if username not in downvoters:
+        downvoters.append(username)
+    else:
+        downvoters.remove(username)
+    
+    post_collection.update_one({'id': post_id}, {'$set':{'downvotes':downvoters}})
+    
+    if username in upvoters: # do the same for upvote_post
+        upvoters.remove(username)
+        post_collection.update_one({'id': post_id}, {'$set':{'upvotes':upvoters}})
+
+    emit('vote_update', {'post_id': post_id, 'votes': len(upvoters) - len(downvoters), 'upvoted':False, 'downvoted':True})
 
 PFP_FOLDER = './public/assets/images/profile_pictures'
 PFP_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}

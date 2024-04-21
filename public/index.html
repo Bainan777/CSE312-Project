@@ -7,8 +7,9 @@
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
     <script src="https://kit.fontawesome.com/eaaa649dee.js" crossorigin="anonymous"></script>
     <script src="/public/functions.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.js"></script> <!--socket.io-->
 </head>
-<body onload="welcome()">
+<body onload="loadToggle();">
     <!--navbar solution from https://stackoverflow.com/questions/31954089/how-can-i-reuse-a-navigation-bar-on-multiple-pages. copy+pasting this keeps navbar on top-->
     <div id="nav-placeholder">
 
@@ -41,9 +42,6 @@
         </div> -->
         <div class="post-submit">
             <a class="post-btn" href="/create-post">Create Post</a>
-        </div><br><br>
-        <div class="post-submit">
-            <a class="post-btn" href="/chat-room">Chat Room</a>
         </div>
         <div id="posts-wrapper">
             <!--where all posts will be viewed-->
@@ -62,14 +60,14 @@
                             {{ post['post_content'] }}
                         </div>
                         <div class="post-upvotes">
-                            <div id="upvote-btn-wrapper">
-                                <button onclick="toggleUpvote('{{ post['id'] }}', this)" id="upvote-btn-{{ post['id'] }}" class="{% if username in post['id'] | get_votes %}upvoted{% else %}not-upvoted{% endif %}"
-                                >
-                                    <i class="{% if username in post['id'] | get_votes %}fa-solid fa-heart{% else %}fa-regular fa-heart{% endif %}"></i>
-                                </button>
+                            <div class="vote-wrapper" id="upvote-btn-wrapper">
+                                <button onClick="upvote('{{ post.id }}')"><i id="upvote-{{ post.id }}" class="fa-solid fa-circle-up"></i></button>
                             </div>
-                            <div id="upvote-count-{{ post['id'] }}">
-                                {{ post['id'] | get_votes | length}}
+                            <div class="vote-wrapper vote-count" id="vote-count-{{ post.id }}">
+                                {{ (post.upvotes | length) - (post.downvotes | length)}}
+                            </div>
+                            <div class="vote-wrapper" id="downvote-btn-wrapper">
+                                <button onClick="downvote('{{ post.id }}')"><i id="downvote-{{ post.id }}"class="fa-solid fa-circle-down"></i></button>
                             </div>
                         </div>
                     </div>
