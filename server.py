@@ -36,7 +36,7 @@ def homepage():
 
     response = make_response(render_template('index.html', posts=posts, token=token))
     response.headers["X-Content-Type-Options"] = "nosniff"
-    emit('home_load', {'posts':posts})
+    # emit('home_load', {'posts':posts})
     return response
 
 @server.route('/public/style.css')
