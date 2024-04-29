@@ -10,6 +10,10 @@ body {
     color: white;
 }
 
+.checked {
+    color: rgb(31, 108, 190);
+}
+
 .post-container {
     width: 80%;
     margin: auto;

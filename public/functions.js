@@ -41,3 +41,32 @@ socket.on('vote_update', function(data) {
 
     icon.classList.toggle('icon-clicked');
 })
+ 
+// To access the stars
+
+// Star Code from: https://www.geeksforgeeks.org/star-rating-using-html-css-and-javascript/ 
+// Funtion to update rating
+function gfg(n) {
+    remove();
+    let stars = document.getElementsByClassName("star-rating");
+    let output = document.getElementById("output-rating");
+    for (let i = 0; i < n; i++) {
+        if (n == 1) cls = "one";
+        else if (n == 2) cls = "two";
+        else if (n == 3) cls = "three";
+        else if (n == 4) cls = "four";
+        else if (n == 5) cls = "five";
+        stars[i].className = "star-rating " + cls;
+    }
+    output.value = n + "/5";
+}
+ 
+// To remove the pre-applied styling
+function remove() {
+    let i = 0;
+    let stars = document.getElementsByClassName("star-rating");
+    while (i < 5) {
+        stars[i].className = "star-rating";
+        i++;
+    }
+}

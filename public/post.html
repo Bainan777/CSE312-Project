@@ -1,8 +1,10 @@
 <html lang="en">
 <head>
+    <meta charset="UTF-8" />
     <title>Create Post</title>
     <link rel="stylesheet" type="text/css" href="/public/nav.css"/>
     <link rel="stylesheet" type="text/css" href="/public/post.css"/>
+    <link rel="stylesheet" type="text/css" href="/public/stars.css"/>
     <link rel="icon" type="image/x-icon" href="/public/assets/favicon.ico">
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 </head>
@@ -19,7 +21,25 @@
         <form action="/create_post" method="post"><br>
             <input class ="post-title" type="text" id="post-title" name="post-title" placeholder="Title" required><br><br>
             <textarea class ="post-content" type="text" id="post-content" name="post-content" placeholder="Type contents" required></textarea><br>
-            <button class ="post_submit"  id = "post_submit" type="submit">Post</button>
+            <h5 style="display:inline-block;">Select your rating: </h5>
+            <span onclick="gfg(1)"
+              class="star-rating">★
+            </span>
+            <span onclick="gfg(2)"
+              class="star-rating">★
+            </span>
+            <span onclick="gfg(3)"
+              class="star-rating">★
+            </span>
+            <span onclick="gfg(4)"
+              class="star-rating">★
+            </span>
+            <span onclick="gfg(5)"
+              class="star-rating">★
+            </span> 
+            <input type="hidden" id="output-rating" name="post-rating" value="0/5" readonly><br><br>
+
+            <button class ="post_submit" id = "post_submit" type="submit">Post</button>
         </form>
         <p style="color: rgb(255, 0, 72);">{{msg}}</p>
     </div>

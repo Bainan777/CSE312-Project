@@ -8,6 +8,7 @@
     <script src="https://kit.fontawesome.com/eaaa649dee.js" crossorigin="anonymous"></script>
     <script src="/public/functions.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.js"></script> <!--socket.io-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body onload="loadToggle();">
     <!--navbar solution from https://stackoverflow.com/questions/31954089/how-can-i-reuse-a-navigation-bar-on-multiple-pages. copy+pasting this keeps navbar on top-->
@@ -57,6 +58,49 @@
                         <div class="post-username">
                             @{{ post['username'] }}
                         </div>
+                        {% if post['post_rating'] == "5": %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        
+                        {% elif post['post_rating'] == "4": %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        
+                        {% elif post['post_rating'] == "3": %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        
+                        {% elif post['post_rating'] == "2": %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        
+                        {% elif post['post_rating'] == "1": %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+
+                        {% else %}
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        {% endif %}
+                        
                         <div class="post-title">
                             {{ post['post_title'] }}
                         </div>
@@ -84,6 +128,7 @@
     {% else %}
     <!--to be shown if user is not logged in-->
     <div id="onboarding-container">
+        <img src="/public/assets/images/touhou-fumo.gif" alt="Luigi was here">
         <div id="onboard-header">Keep track of the anime you love (and hate).</div>
         <div id="onboard-btns">
             <div class="signup-btn">
@@ -92,7 +137,7 @@
             <div class="login-btn">
                 <a href="/login.html">Login</a>
             </div>
-        </div>
+        </div><br>
     </div> 
     {% endif %}
 </body>
