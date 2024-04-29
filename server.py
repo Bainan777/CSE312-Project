@@ -74,6 +74,13 @@ def stars_css():
     response.headers["Content-Type"] = "text/css"
     return response
 
+@server.route('/public/profile-card.css')
+def profile_css():
+    response = make_response(render_template('profile-card.css'))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/css"
+    return response
+
 @server.route('/nav.html')
 @server.route('/public/nav.html')
 def nav_html():
@@ -220,18 +227,33 @@ def profile_html():
         if len(getToken) != 0:
             name = "@"+getToken[0]["username"]
 
-            getPfp = user_collection.find({"username": getToken[0]["username"]})
-            getPfp = list(getPfp)
+            getProfile = user_collection.find({"username": getToken[0]["username"]})
+            getProfile = list(getProfile)
 
-        if len(getPfp) != 0:
-            pfp = getPfp[0]["profile-pic"]
+            if len(getProfile) != 0:
+                pfp = getProfile[0]["profile-pic"]
+                caption = getProfile[0]["caption"]
+                favorite = getProfile[0]["favorite-anime"]
+                aboutme = getProfile[0]["about-me"]
+            else:
+                pfp = "default.jpg"
+                caption = "What are you?"
+                favorite = "Keep track of your favorite anime!"
+                aboutme = "Share about yourself!"
         else:
-            pfp = "default.jpg"
+            name = "Guest"
+            pfp = "temp-logo.png"
+            caption = "Log in!"
+            favorite = "Log in to share your favorite anime!"
+            aboutme = "Log in to share about yourself!"   
     else:
         name = "Guest"
         pfp = "temp-logo.png"
+        caption = "Log in!"
+        favorite = "Log in to share your favorite anime!"
+        aboutme = "Log in to share about yourself!"
 
-    response = make_response(render_template('profile.html', name=name, pfp=pfp))
+    response = make_response(render_template('profile.html', name=name, pfp=pfp, favorite=favorite, aboutme=aboutme, caption=caption))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
     return response
@@ -254,7 +276,8 @@ def registration_check():
         password_bytes = password.encode()
         salt = bcrypt.gensalt()
         hash_password = bcrypt.hashpw(password_bytes, salt)
-        user_information_dict = {"username": str(username), "password": hash_password, "email": str(email), "profile-pic": "default.jpg"}
+        user_information_dict = {"username": str(username), "password": hash_password, "email": str(email), 
+            "profile-pic": "default.jpg", "caption": "What are you?", "about-me": "Share about yourself!", "favorite-anime": "Keep track of your favorite anime!"}
         user_collection.insert_one(user_information_dict)
         response = make_response(redirect("/"))
         return response

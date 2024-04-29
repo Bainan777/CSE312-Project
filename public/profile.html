@@ -1,8 +1,9 @@
 <html lang="en">
 <head>
-    <title>Forums</title>
+    <title>Your Profile</title>
     <link rel="stylesheet" type="text/css" href="/public/style.css"/>
     <link rel="stylesheet" type="text/css" href="/public/nav.css"/>
+    <link rel="stylesheet" type="text/css" href="/public/profile-card.css"/>
     <link rel="icon" type="image/x-icon" href="/public/assets/favicon.ico">
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 </head>
@@ -18,15 +19,26 @@
     </script>
     <!--end of navbar-->
 
-    <h1>Profile</h1>
+    <h1 style="text-align:center">Profile</h1>
 
-    <img src="/public/assets/images/profile_pictures/{{pfp}}" class="profilepfp"></a>
-    <h2>{{name}}</h2><br>
-    
-    <form action="/change-pfp" id="pfp-form" method="post" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <input type="submit" value="Upload">
-    </form>
+    <div class="profile-card"> <br>
+        <img src="/public/assets/images/profile_pictures/{{pfp}}" alt="Whoops"  class="profilepfp">
+        <form action="/change-pfp" id="pfp-form" method="post" enctype="multipart/form-data">
+              <input type="file" name="file">
+              <input type="submit" value="Upload">
+         </form>
+        
+        <h1>{{name}}</h1>
+        <p class="profile-title">{{caption}}</p>
+        <h4>Favorite Anime</h4>
+        <p class="favorite-anime">{{favorite}}</p>
+        <div style="margin: 24px 0;">
+          <h4>About Me</h4>
+              <p>{{aboutme}}</p>
+        </div>
+        <p><div class="contact"><button>Contact</button></div></p>
+      </div>
+
 <script src="/public/functions.js"></script>
 </body>
 </html>
