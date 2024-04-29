@@ -67,6 +67,13 @@ def post_css():
     response.headers["Content-Type"] = "text/css"
     return response
 
+@server.route('/public/stars.css')
+def stars_css():
+    response = make_response(render_template('stars.css'))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/css"
+    return response
+
 @server.route('/nav.html')
 @server.route('/public/nav.html')
 def nav_html():
@@ -355,16 +362,31 @@ def post_check():
         # add some code for storing infomation to databases, feel free to change it and do whatever you want.
         post_title = request.form["post-title"]
         post_content = request.form["post-content"]
+        post_rating = request.form["post-rating"]
 
         post_title = html.escape(post_title)
         post_content = html.escape(post_content)
+        post_rating = html.escape(post_rating)
+
+        if post_rating == "1/5":
+            post_rating = "1"
+        elif post_rating == "2/5":
+            post_rating = "2"
+        elif post_rating == "3/5":
+            post_rating = "3"
+        elif post_rating == "4/5":
+            post_rating = "4"
+        elif post_rating == "5/5":
+            post_rating = "5"
+        else:
+            post_rating = "0"
 
         print(post_title)
         print(post_content)
 
         # Database content should be pulled for HTML use
         post_id = random.randint(1, 9999999999)
-        post_contents = {"username": record["username"], "post_title": str(post_title), "post_content": str(post_content), "id": str(post_id), "upvotes": [], "downvotes": []}
+        post_contents = {"username": record["username"], "post_title": str(post_title), "post_content": str(post_content), "id": str(post_id), "post_rating": post_rating, "upvotes": [], "downvotes": []}
 
         post_collection.insert_one(post_contents)
 
