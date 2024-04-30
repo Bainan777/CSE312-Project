@@ -128,15 +128,14 @@
     {% else %}
     <!--to be shown if user is not logged in-->
     <div id="onboarding-container">
-        <img src="/public/assets/images/touhou-fumo.gif" alt="Luigi was here">
-        <div id="onboard-header">Keep track of the anime you love (and hate).</div>
-        <div id="onboard-btns">
-            <div class="signup-btn">
-                <a href="/signup.html">Get Started</a>
-            </div>
-            <div class="login-btn">
-                <a href="/login.html">Login</a>
-            </div>
+        <div id="onboard-header">
+            <h1>Keep track of the anime you love.</h1>
+        </div>
+        <div id="onboard-gif"><img src="/public/assets/images/touhou-fumo.gif" alt="Luigi was here"></div>
+        <div id="onboard-btn-wrapper">
+                <div class="onboard-btn" id="signup-btn">
+                    <a href="/signup.html">Get Started</a>
+                </div>
         </div><br>
     </div> 
     {% endif %}

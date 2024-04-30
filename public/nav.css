@@ -3,26 +3,29 @@
     background-color: rgb(31, 95, 164);
 }
 
-.nav-bar a {
-    float: left;
+.nav-right a {
     color: white;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
 }
 
-.nav-bar a:hover {
-    background-color: rgb(51, 117, 188);
+.nav-left {
+    float: left;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 45px;
+    padding-left: 0.8rem;
 }
 
-.nav-bar input[type=text] {
-    float: center;
-    padding: 6px;
-    border: none;
-    margin-top: 8px;
-    margin-right: 16px;
-    font-size: 17px;
-  }
+.logo img {
+    height: 30px;
+}
+
+.nav-right a:hover {
+    background-color: rgb(51, 117, 188);
+}
 
 .nav-right {
     float: right;
@@ -32,8 +35,16 @@
     float: left;
     color: white;
     text-align: center;
-    padding: 14px 16px;
+    /* padding: 14px 16px; */
     text-decoration: none;
+}
+
+#signup-logout, #login, #user {
+    padding: 14.5px 16px;
+}
+
+#profile-pic {
+    padding: 12.5px 14px;
 }
 
 .nav-right div:hover {
@@ -59,7 +70,7 @@
 
 .userpfp {
     vertical-align: middle;
-    width: 20px;
-    height: 20px;
+    width: 25px;
+    height: 25px;
     border-radius: 50%;
 }

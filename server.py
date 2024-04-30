@@ -106,13 +106,13 @@ def nav_html():
             visibility = "visible"
             href="/signup.html"
             profile_href = "/login.html"
-            pfp = "temp-logo.png"
+            pfp = "default.jpg"
     else:
         name = "Guest"
         logout = "Sign Up"
         visibility = "visible"
         href="/signup.html"
-        pfp = "temp-logo.png"
+        pfp = "default.jpg"
         profile_href = "/login.html"
 
     response = make_response(render_template('nav.html',  name=name, pfp=pfp, profile_href=profile_href, logout=logout, visibility=visibility, href=href))
@@ -229,7 +229,7 @@ def profile_html():
             pfp = "default.jpg"
     else:
         name = "Guest"
-        pfp = "temp-logo.png"
+        pfp = "default.jpg"
 
     response = make_response(render_template('profile.html', name=name, pfp=pfp))
     response.headers["X-Content-Type-Options"] = "nosniff"
