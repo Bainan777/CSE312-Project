@@ -74,6 +74,13 @@ def stars_css():
     response.headers["Content-Type"] = "text/css"
     return response
 
+@server.route('/public/profile-card.css')
+def profile_css():
+    response = make_response(render_template('profile-card.css'))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/css"
+    return response
+
 @server.route('/nav.html')
 @server.route('/public/nav.html')
 def nav_html():
@@ -115,7 +122,13 @@ def nav_html():
         pfp = "temp-logo.png"
         profile_href = "/login.html"
 
-    response = make_response(render_template('nav.html',  name=name, pfp=pfp, profile_href=profile_href, logout=logout, visibility=visibility, href=href))
+    response = make_response(render_template('nav.html',  
+        name=name, 
+        pfp=pfp, 
+        profile_href=profile_href, 
+        logout=logout, 
+        visibility=visibility, 
+        href=href))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
     return response
@@ -220,18 +233,43 @@ def profile_html():
         if len(getToken) != 0:
             name = "@"+getToken[0]["username"]
 
-            getPfp = user_collection.find({"username": getToken[0]["username"]})
-            getPfp = list(getPfp)
+            getProfile = user_collection.find({"username": getToken[0]["username"]})
+            getProfile = list(getProfile)
 
-        if len(getPfp) != 0:
-            pfp = getPfp[0]["profile-pic"]
+            if len(getProfile) != 0:
+                pfp = getProfile[0]["profile-pic"]
+                caption = getProfile[0]["caption"]
+                numPosts = getProfile[0]["numPosts"]
+                favorite = getProfile[0]["favorite-anime"]
+                aboutme = getProfile[0]["about-me"]
+            else:
+                pfp = "default.jpg"
+                caption = "What are you?"
+                numPosts = "0"
+                favorite = "Keep track of your favorite anime!"
+                aboutme = "Share about yourself!"
         else:
-            pfp = "default.jpg"
+            name = "Guest"
+            pfp = "temp-logo.png"
+            caption = "Log in!"
+            numPosts = "0"
+            favorite = "Log in to share your favorite anime!"
+            aboutme = "Log in to share about yourself!"   
     else:
         name = "Guest"
         pfp = "temp-logo.png"
+        caption = "Log in!"
+        numPosts = "0"
+        favorite = "Log in to share your favorite anime!"
+        aboutme = "Log in to share about yourself!"
 
-    response = make_response(render_template('profile.html', name=name, pfp=pfp))
+    response = make_response(render_template('profile.html', 
+        name=name, 
+        pfp=pfp, 
+        favorite=favorite, 
+        aboutme=aboutme, 
+        caption=caption, 
+        numPosts=numPosts))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
     return response
@@ -254,7 +292,8 @@ def registration_check():
         password_bytes = password.encode()
         salt = bcrypt.gensalt()
         hash_password = bcrypt.hashpw(password_bytes, salt)
-        user_information_dict = {"username": str(username), "password": hash_password, "email": str(email), "profile-pic": "default.jpg"}
+        user_information_dict = {"username": str(username), "password": hash_password, "email": str(email), 
+            "profile-pic": "default.jpg", "numPosts": "0","caption": "What are you?", "about-me": "Share about yourself!", "favorite-anime": "Keep track of your favorite anime!"}
         user_collection.insert_one(user_information_dict)
         response = make_response(redirect("/"))
         return response
@@ -364,9 +403,9 @@ def post_check():
         post_content = request.form["post-content"]
         post_rating = request.form["post-rating"]
 
-        post_title = html.escape(post_title)
-        post_content = html.escape(post_content)
-        post_rating = html.escape(post_rating)
+        #post_title = html.escape(post_title)
+        #post_content = html.escape(post_content)
+        #post_rating = html.escape(post_rating)
 
         if post_rating == "1/5":
             post_rating = "1"
@@ -386,9 +425,15 @@ def post_check():
 
         # Database content should be pulled for HTML use
         post_id = random.randint(1, 9999999999)
-        post_contents = {"username": record["username"], "post_title": str(post_title), "post_content": str(post_content), "id": str(post_id), "post_rating": post_rating, "upvotes": [], "downvotes": []}
+        post_contents = {"username": record["username"], "post_title": post_title, "post_content": post_content, "id": str(post_id), "post_rating": post_rating, "upvotes": [], "downvotes": []}
 
         post_collection.insert_one(post_contents)
+
+        getPosts = user_collection.find({"username": record["username"]})
+        getPosts = list(getPosts)
+        postNum = int(getPosts[0]["numPosts"])
+        postNum+=1
+        user_collection.update_one({'username': record["username"]}, {'$set': {'numPosts':str(postNum)}})
 
         response = make_response(redirect("/public/index.html"))
 
@@ -477,22 +522,61 @@ def upload_file():
         if len(getToken) != 0:
             name = "@"+getToken[0]["username"]
 
-            getPfp = user_collection.find({"username": getToken[0]["username"]})
-            getPfp = list(getPfp)
+            getProfile = user_collection.find({"username": getToken[0]["username"]})
+            getProfile = list(getProfile)
 
-        if len(getPfp) != 0:
-            pfp = getPfp[0]["profile-pic"]
+            if len(getProfile) != 0:
+                pfp = getProfile[0]["profile-pic"]
+                caption = getProfile[0]["caption"]
+                numPosts = getProfile[0]["numPosts"]
+                favorite = getProfile[0]["favorite-anime"]
+                aboutme = getProfile[0]["about-me"]
+            else:
+                pfp = "default.jpg"
+                caption = "What are you?"
+                numPosts = "0"
+                favorite = "Keep track of your favorite anime!"
+                aboutme = "Share about yourself!"
         else:
-            pfp = "default.jpg"
+            name = "Guest"
+            pfp = "temp-logo.png"
+            caption = "Log in!"
+            numPosts = "0"
+            favorite = "Log in to share your favorite anime!"
+            aboutme = "Log in to share about yourself!"   
     else:
-        return make_response(render_template("/profile.html", msg="Only registered users can change their profile pictures!", name="Guest", pfp="default.jpg", color="red"))
+        return make_response(render_template("/profile.html", 
+            msg="Only registered users can change their profile pictures!", 
+            name="Guest", 
+            pfp="default.jpg", 
+            color="red", 
+            caption = "Log in!",
+            favorite = "Log in to share your favorite anime!",
+            aboutme = "Log in to share about yourself!",
+            numPosts = "0"))
 
     if 'file' not in request.files:
-        return make_response(render_template("/profile.html", msg="There is no file part!", name=name, pfp=pfp, color="red"))
+        return make_response(render_template("/profile.html", 
+            msg="There is no file part!", 
+            name=name, 
+            pfp=pfp, 
+            caption=caption, 
+            numPosts=numPosts, 
+            favorite=favorite, 
+            aboutme=aboutme, 
+            color="red"))
     file = request.files['file']
 
     if file.filename == '':
-        return make_response(render_template("/profile.html", msg="You haven't uploaded any file!", name=name, pfp=pfp, color="red"))
+        return make_response(render_template("/profile.html", 
+            msg="You haven't uploaded any file!", 
+            name=name, 
+            pfp=pfp, 
+            caption=caption, 
+            numPosts=numPosts, 
+            favorite=favorite, 
+            aboutme=aboutme, 
+            color="red"))
     
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
@@ -502,7 +586,15 @@ def upload_file():
         user_collection.update_one({"username": str(username)}, {'$set': {'profile-pic': filename}})
 
 
-    return make_response(render_template("/profile.html", msg="Profile picture updated!", name=name, color="blueviolet", pfp=filename))
+    return make_response(render_template("/profile.html", 
+        msg="Profile picture updated!", 
+        name=name, 
+        caption=caption, 
+        numPosts=numPosts, 
+        favorite=favorite, 
+        aboutme=aboutme,
+        color="blueviolet", 
+        pfp=filename))
 
 @server.route("/chat-history")
 def chat_history():
