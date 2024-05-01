@@ -1,22 +1,63 @@
 .profile-card {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     max-width: 500px;
-    margin: auto;
-    text-align: center;
+    margin: 1rem auto;
+    /* text-align: center; */
     font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    border-style: groove;
+    border-style: solid;
     border-radius: 15px;
-    word-wrap: break-word;
+    border-color: rgb(78, 78, 78);
+    padding: 2rem;
+  }
+
+  .profile-card-header {
+    display: inline-flex;
+    padding-bottom: 1rem;
+  }
+
+  #header-pfp {
+    padding-right: 2rem;
+  }
+
+  .profilepfp:hover {
+    cursor: pointer;
+  }
+
+  form {
+    text-align: left;
+    margin: 0;
+  }
+
+  h1 {
+    margin: 0;
   }
   
   .profile-title {
-    color: rgb(31, 95, 164);
+    /* color: rgb(31, 95, 164); */
     font-size: 21px;
+    margin: 1rem 0;
+  }
+
+  .profile-card-body {
+    padding-top: 1rem;
+    margin: 0;
   }
   
   .favorite-anime {
     color: rgb(31, 95, 164);
     font-size: 18px;
+  }
+
+  #aboutme-wrapper {
+    padding-top: 1rem;
+  }
+
+  h4 {
+    margin: 0;
+  }
+
+  #aboutme {
+    margin: 0;
   }
 
   .contact button {
