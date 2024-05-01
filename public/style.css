@@ -6,12 +6,29 @@ body {
 }
 
 /*----------index.html----------*/
-/* post styling - when a user is logged in */
+/* when a user is logged in */
+.main-buttons-wrapper {
+    margin: auto;
+    width: fit-content;
+    padding: 1rem 0;
+    margin-top: 1rem;
+}
+
+.main-buttons {
+    display: inline-flex;
+    flex-direction: row;
+}
+
+.post-submit {
+    padding: 0.3rem;
+}
 
 .post-btn {
-    padding: 5px;
+    padding: 0.5rem 0.8rem;
     background-color: rgb(31, 108, 190);
     color: white;
+    text-decoration: none;
+    border-radius: 0.8rem;
 }
 
 .checked {
@@ -19,22 +36,29 @@ body {
 }
 
 .post-container {
-    width: 80%;
-    margin: auto;
+    width: 80vw;
+    margin: 1rem auto;
     border-radius: 10px;
     border-style: solid;
-    border-color: black;
+    border-color: rgb(78, 78, 78);
+    background-color: inherit;
     padding: 10px;
 }
 
 .post-wrapper {
     padding: 10px;
+    display: inline-flex;
+}
+
+#post-pfp-wrapper {
+    padding-right: 0.8rem;
 }
 
 .post-pfp {
     vertical-align: middle;
-    width: 80px;
-    height: 80px;
+    width: 30px;
+    height: 30px;
+    border-radius: 100%;
 }
 
 .post-username {
@@ -46,6 +70,10 @@ body {
     padding-top: 5px;
     font-size: 18px;
     text-decoration: underline;
+}
+
+.post-upvotes {
+    padding-top: 1rem;
 }
 
 .vote-wrapper {
@@ -64,8 +92,7 @@ body {
     padding: 0;
     margin: 0;
     cursor: pointer;
-    outline: none; /* Optional: Remove focus outline */
-    /* Additional styles to ensure consistent appearance */
+    outline: none;
     display: inline-block;
     text-align: center;
     text-decoration: none;

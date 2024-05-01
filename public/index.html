@@ -24,105 +24,93 @@
 
     {% if token %}
     <!--shown if user is logged in-->
-    <!-- <div id="posts-container">
-        <div id="create-post-wrapper">
-            <form>
-                <div id="create-post-anime">
-                    <input type="text" id="new-anime" name="new-anime" placeholder="Anime Title" required/>
-                </div>
-                <div id="create-post-rating">
-                    <input type="number" id="new-rating" name="new-rating" min="1" max="5" placeholder="Rating (1-5)" required/>
-                </div>
-                <div id="create-post-review">
-                    <input type="text" id="new-review" name="new-review" placeholder="Write your review" required/>
-                </div>
-                <div class="post-submit">
-                    <button class="post-btn" type="submit">Create Post</button>
-            </div>
-            </form>
-        </div> -->
-        <div class="post-submit">
-            <a class="post-btn" href="/create-post">Create Post</a>
-        </div><br>
-        <div class="post-submit">
-            <a class="post-btn" href="/chat-room">Chat Room</a>
-        </div>
-        
-        <div id="posts-wrapper">
-            <!--where all posts will be viewed-->
-            <ul>
-                {% for post in posts %}
-                <div class="post-container">
-                    <div class="post-wrapper">
-                        <img src="/public/assets/images/profile_pictures/{{ post['username'] | get_pfp }}" class="post-pfp"></div>
-                        <div class="post-username">
-                            @{{ post['username'] }}
-                        </div>
-                        {% if post['post_rating'] == "5": %}
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star checked"></span>
-                        
-                        {% elif post['post_rating'] == "4": %}
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star"></span>
-                        
-                        {% elif post['post_rating'] == "3": %}
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star"></span>
-                        <span class="fa fa-star"></span>
-                        
-                        {% elif post['post_rating'] == "2": %}
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star"></span>
-                        <span class="fa fa-star"></span>
-                        <span class="fa fa-star"></span>
-                        
-                        {% elif post['post_rating'] == "1": %}
-                        <span class="fa fa-star checked"></span>
-                        <span class="fa fa-star"></span>
-                        <span class="fa fa-star"></span>
-                        <span class="fa fa-star"></span>
-                        <span class="fa fa-star"></span>
 
-                        {% else %}
-                        <span class="fa fa-star"></span>
-                        <span class="fa fa-star"></span>
-                        <span class="fa fa-star"></span>
-                        <span class="fa fa-star"></span>
-                        <span class="fa fa-star"></span>
-                        {% endif %}
-                        
-                        <div class="post-title">
-                            {{ post['post_title'] }}
+    <div class="main-buttons-wrapper">
+        <div class="main-buttons">
+            <div class="post-submit">
+                <a class="post-btn" href="/create-post">Create Post</a>
+            </div>
+            <div class="post-submit">
+                <a class="post-btn" href="/chat-room">Chat Room</a>
+            </div>
+        </div>
+    </div>
+        
+    <div id="posts-wrapper">
+        <!--where all posts will be viewed-->
+        {% for post in posts %}
+        <div class="post-container">
+            <div class="post-wrapper">
+                <div class="post-wrapper-child" id="post-pfp-wrapper">
+                    <img src="/public/assets/images/profile_pictures/{{ post['username'] | get_pfp }}" class="post-pfp">
+                </div>
+                <div class="post-wrapper-child">
+                    <div class="post-username">
+                        @{{ post['username'] }}
+                    </div>
+                    {% if post['post_rating'] == "5": %}
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    
+                    {% elif post['post_rating'] == "4": %}
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star"></span>
+                    
+                    {% elif post['post_rating'] == "3": %}
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    
+                    {% elif post['post_rating'] == "2": %}
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    
+                    {% elif post['post_rating'] == "1": %}
+                    <span class="fa fa-star checked"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+
+                    {% else %}
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    <span class="fa fa-star"></span>
+                    {% endif %}
+                    <div class="post-title">
+                        {{ post['post_title'] }}
+                    </div>
+                    <div class="post-content">
+                        {{ post['post_content'] }}
+                    </div>
+                    <div class="post-upvotes">
+                        <div class="vote-wrapper" id="upvote-btn-wrapper">
+                            <button onClick="upvote('{{ post.id }}')"><i id="upvote-{{ post.id }}" class="fa-solid fa-circle-up"></i></button>
                         </div>
-                        <div class="post-content">
-                            {{ post['post_content'] }}
+                        <div class="vote-wrapper vote-count" id="vote-count-{{ post.id }}">
+                            {{ (post.upvotes | length) - (post.downvotes | length)}}
                         </div>
-                        <div class="post-upvotes">
-                            <div class="vote-wrapper" id="upvote-btn-wrapper">
-                                <button onClick="upvote('{{ post.id }}')"><i id="upvote-{{ post.id }}" class="fa-solid fa-circle-up"></i></button>
-                            </div>
-                            <div class="vote-wrapper vote-count" id="vote-count-{{ post.id }}">
-                                {{ (post.upvotes | length) - (post.downvotes | length)}}
-                            </div>
-                            <div class="vote-wrapper" id="downvote-btn-wrapper">
-                                <button onClick="downvote('{{ post.id }}')"><i id="downvote-{{ post.id }}"class="fa-solid fa-circle-down"></i></button>
-                            </div>
+                        <div class="vote-wrapper" id="downvote-btn-wrapper">
+                            <button onClick="downvote('{{ post.id }}')"><i id="downvote-{{ post.id }}"class="fa-solid fa-circle-down"></i></button>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
-            </ul>
+            </div>
         </div>
+        {% endfor %}
     </div>
 
     {% else %}
