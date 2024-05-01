@@ -14,17 +14,31 @@
         });
     </script>
 
-    <h1>Create Account</h1>
-    <div class="form-container">
-        <form action="/create_account" method="post">
-            <input type="email" id="signup_email" name="signup_email" placeholder="Email" required>
-            <input type="text" id="signup_username" name="signup_username" placeholder="Username" required>
-            <input type="password" id="signup_password" name="signup_password" placeholder="Password" required>
-            <input type="password" id="signup_re_password" name="signup_re_password" placeholder="Re-type Password" required>
-            <button type="submit">Create Account</button>
-        </form>
-        <p style="color: red;">{{msg}}</p>
-        <p>Already have an account? <a href="/public/login.html">Login</a></p>
+    <div class="regis-container">
+        <h1 class="regis-title">Create Account</h1>
+        <div class="form-container">
+            <form action="/create_account" method="post">
+                <div class="regis-input">
+                    <input type="email" id="signup_email" name="signup_email" placeholder="Email" required>
+                </div>
+                <div class="regis-input">
+                    <input type="text" id="signup_username" name="signup_username" placeholder="Username" required>
+                </div>
+                <div class="regis-input">
+                    <input type="password" id="signup_password" name="signup_password" placeholder="Password" required>
+                </div>
+                <div class="regis-input">
+                    <input type="password" id="signup_re_password" name="signup_re_password" placeholder="Re-type Password" required>
+                </div>
+                <div class="error-container">
+                    <p>{{msg}}</p>
+                </div>
+                <div class="regis-input" id="submit-btn">
+                    <button type="submit">Create Account</button>
+                </div>
+            </form>
+            <p>Already have an account? <a href="/public/login.html" class="regis-link">Login</a></p>
+    </div>
     </div>
 </body>
 </html>

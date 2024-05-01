@@ -247,9 +247,9 @@ def registration_check():
     found_username = list(found_username)
 
     if password != re_password:
-        msg = "passwords are not the same"
+        msg = "Passwords do not match."
     elif len(found_username) != 0:
-        msg = "Username already existed"
+        msg = "This username is already taken."
     else:
         password_bytes = password.encode()
         salt = bcrypt.gensalt()
@@ -272,7 +272,7 @@ def login_check():
     user =  user_collection.find({"username": str(username)})
     user = list(user)
     if len(user) == 0:
-        msg = "Incorrect username or password! Please try again"
+        msg = "Incorrect username or password! Please try again."
     else:
         hashed_password = user[0]["password"]
         check_password = bcrypt.checkpw(password_bytes, hashed_password)
