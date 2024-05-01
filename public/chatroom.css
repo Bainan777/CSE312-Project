@@ -1,6 +1,8 @@
 body, html {
     font-family: Arial, sans-serif;
     height: 100%;
+    margin: 0;
+    background-color: rgb(27, 28, 28);
 }
 
 h1 {
@@ -8,11 +10,18 @@ h1 {
     color: white;
     text-align: center;
     padding: 10px;
-    margin-top: 5px;
+    margin: 0;
+}
+
+.main-container {
+    height: calc(100vh - 50px);
 }
 
 .chat-container {
-    height: calc(100% - 75px); 
+    position: absolute;
+    bottom: 0;
+    width: 100vw;
+    /* height: calc(100% - 75px);  */
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -22,8 +31,9 @@ h1 {
 .chat {
     flex: 1; 
     padding: 10px;
-    background-color: white;
     overflow-y: auto;
+    background-color: rgb(27, 28, 28);;
+    color: white;
 }
 
 .message {
