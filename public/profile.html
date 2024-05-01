@@ -19,28 +19,44 @@
     </script>
     <!--end of navbar-->
 
-    <h1 style="text-align:center">Profile</h1>
+    <h1 style="text-align:center; margin-top:1rem">Profile</h1>
 
-    <div class="profile-card"> <br>
-        <img src="/public/assets/images/profile_pictures/{{pfp}}" alt="Whoops"  class="profilepfp">
-        <form action="/change-pfp" id="pfp-form" method="post" enctype="multipart/form-data">
-              <input type="file" name="file">
-              <input type="submit" value="Upload">
-         </form>
-        
-        <h1>{{name}}</h1>
-        <p class="profile-title">{{caption}}</p>
-        <h4>Favorite Anime</h4>
-        <p class="favorite-anime">{{favorite}}</p>
-        <h4>Posts Made</h4>
-        <p>{{numPosts}}</p>
-        <div style="margin: 24px 0;">
-          <h4>About Me</h4>
-              <p>{{aboutme}}</p>
+    <div class="profile-card">
+        <div class="profile-card-header">
+            <div class="profile-card-header-child" id="header-pfp">
+                <form action="/change-pfp" id="pfp-form" method="post" enctype="multipart/form-data">
+                    <label for="file"><img src="/public/assets/images/profile_pictures/{{pfp}}" alt="Whoops"  class="profilepfp"></label>
+                    <input type="file" name="file" id="file" hidden="true">
+                    <button type="submit" name="upload" hidden="true">Upload</button>
+                </form>
+            </div>
+            <div class="profile-card-header-child">
+                <h1>{{name}}</h1>
+                <p class="profile-title">{{caption}}</p>
+                <div><b>{{numPosts}}</b> Posts Made</div>
+            </div>
         </div>
-        <p><div class="contact"><button>Contact</button></div></p>
+        
+        <div class="profile-card-body">
+            <div class="profile-body-child"><b>Favorite Anime: </b> {{favorite}}</div>
+            <!-- <h4>Favorite Anime:</h4>
+            <p class="favorite-anime">{{favorite}}</p>
+            <h4>Posts Made</h4>
+            <p>{{numPosts}}</p> -->
+            <div id="aboutme-wrapper" style="margin: 0;">
+            <h4>About Me</h4>
+                <p id="aboutme">{{aboutme}}</p>
+            </div>
+            <!-- commented this out for presentation since it currently has no function -->
+            <!-- <p><div class="contact"><button>Contact</button></div></p> -->
+        </div> 
       </div>
 
+<script>
+    document.querySelector('input[type=file]').addEventListener('change', function(){
+        this.form.submit();
+    });
+</script>
 <script src="/public/functions.js"></script>
 </body>
 </html>
