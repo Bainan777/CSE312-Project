@@ -274,6 +274,43 @@ def profile_html():
     response.headers["Content-Type"] = "text/html"
     return response
 
+@server.route('/public/users/<username>')
+def user_profiles(username):
+    token = request.cookies.get("auth_token")
+
+    if token != None:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        record = token_collection.find_one({"hash-token": hash_token})
+
+    if token != None and record != None:
+        if username == record["username"]:
+            response = make_response(redirect("/profile.html"))
+            return response
+
+    get_profile = user_collection.find_one({"username": username})
+
+    if get_profile != None:
+        username = username
+        caption = get_profile["caption"]
+        profile_pic = get_profile["profile-pic"]
+        numPosts = get_profile["numPosts"]
+        favorite = get_profile["favorite-anime"]
+        aboutme = get_profile["about-me"]
+
+        response = make_response(render_template('user_profiles.html', 
+            username=username, 
+            caption=caption, 
+            profile_pic=profile_pic, 
+            numPosts=numPosts, 
+            favorite=favorite,
+            aboutme=aboutme))
+    else:
+        response = make_response(redirect("/"))
+    
+    return response
+
 @server.route('/create_account', methods = ['POST'])
 def registration_check():
     msg = ""
@@ -355,6 +392,31 @@ def post_render():
     response.headers["Content-Type"] = "text/html"
     return response
 
+@server.route('/edit-profile')
+def edit_render():
+    token = request.cookies.get("auth_token")
+
+    if token != None:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        record = token_collection.find_one({"hash-token": hash_token})
+        
+    if token != None and record != None:
+        profile = user_collection.find_one({"username": record["username"]})
+        user_handle = profile["caption"]
+        fav_anime = profile["favorite-anime"]
+        about_me = profile["about-me"]
+
+        response = make_response(render_template('editProfile.html', user_handle=user_handle, fav_anime=fav_anime, about_me=about_me))
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Content-Type"] = "text/html"
+
+        return response
+    else:
+        return make_response(redirect("/login.html"))
+
+
 @server.route('/chat-room')
 def direct_message_render():
     response = make_response(render_template('chatroom.html'))
@@ -383,6 +445,32 @@ def get_pfp(username):
         return record['profile-pic']
     else:
         return None
+
+@server.route('/edit_profile', methods = ['POST'])
+def edit_profile():
+    msg = ""
+    token = request.cookies.get("auth_token")
+
+    if token != None:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        record = token_collection.find_one({"hash-token": hash_token})
+
+    if token != None and record != None:
+        user_handle = request.form["user-handle"]
+        favorite_anime = request.form["favorite-anime"]
+        about_you = request.form["about-you"]
+
+        user_collection.update_one({'username': record["username"]}, {'$set': {'caption':str(user_handle), "favorite-anime": str(favorite_anime), "about-me": str(about_you)}})
+        response = make_response(redirect("/profile.html"))
+    else:
+        msg = "Only logged in users can edit their profiles. Please log in"
+        response = make_response(render_template('editProfile.html', msg = msg))
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Content-Type"] = "text/html"
+    
+    return response
 
 @server.route('/create_post', methods = ['POST'])
 def post_check():
