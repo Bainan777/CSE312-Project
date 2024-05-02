@@ -1,11 +1,10 @@
 <html lang="en">
 <head>
-    <title>Your Profile</title>
+    <title>{{username}}'s Profile</title>
     <link rel="stylesheet" type="text/css" href="/public/style.css"/>
     <link rel="stylesheet" type="text/css" href="/public/nav.css"/>
     <link rel="stylesheet" type="text/css" href="/public/profile-card.css"/>
     <link rel="icon" type="image/x-icon" href="/public/assets/favicon.ico">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css">
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 </head>
 <body">
@@ -15,25 +14,20 @@
     </div>
     <script>
         $(function(){
-            $("#nav-placeholder").load("nav.html");
+            $("#nav-placeholder").load("/public/nav.html");
         });
     </script>
     <!--end of navbar-->
 
-    <h1 style="text-align:center; margin-top:1rem">Your Profile</h1>
+    <h1 style="text-align:center; margin-top:1rem">{{username}}'s Profile</h1>
 
     <div class="profile-card">
         <div class="profile-card-header">
-            
             <div class="profile-card-header-child" id="header-pfp">
-                <form action="/change-pfp" id="pfp-form" method="post" enctype="multipart/form-data">
-                    <label for="file"><img src="/public/assets/images/profile_pictures/{{pfp}}" alt="Whoops"  class="profilepfp"></label>
-                    <input type="file" name="file" id="file" hidden="true">
-                    <button type="submit" name="upload" hidden="true">Upload</button>
-                </form>
+                <img src="/public/assets/images/profile_pictures/{{profile_pic}}" alt="Whoops"  class="profilepfp">
             </div>
             <div class="profile-card-header-child">
-                <h1 style="display:inline-block;">{{name}}</h1><a class="edit_profile" href='/edit-profile'><i class="fa fa-pen fa-xs edit"></i></a><br>
+                <h1>@{{username}}</h1>
                 <p class="profile-title">{{caption}}</p>
                 <div><b>{{numPosts}}</b> Posts Made</div>
             </div>

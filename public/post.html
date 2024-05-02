@@ -16,32 +16,37 @@
         });
     </script>
 
-    <h1>Create Post</h1>
-    <div class="post-form-container">
-        <form action="/create_post" method="post"><br>
-            <input class ="post-title" type="text" id="post-title" name="post-title" placeholder="Title" required><br><br>
-            <textarea class ="post-content" type="text" id="post-content" name="post-content" placeholder="Type contents" required></textarea><br>
-            <h5 style="display:inline-block;">Select your rating: </h5>
-            <span onclick="gfg(1)"
-              class="star-rating">★
-            </span>
-            <span onclick="gfg(2)"
-              class="star-rating">★
-            </span>
-            <span onclick="gfg(3)"
-              class="star-rating">★
-            </span>
-            <span onclick="gfg(4)"
-              class="star-rating">★
-            </span>
-            <span onclick="gfg(5)"
-              class="star-rating">★
-            </span> 
-            <input type="hidden" id="output-rating" name="post-rating" value="0/5" readonly><br><br>
-
-            <button class ="post_submit" id = "post_submit" type="submit">Post</button>
-        </form>
-        <p style="color: rgb(255, 0, 72);">{{msg}}</p>
+    <div class="main-container">
+      <h1>Create Post</h1>
+      <div class="post-form-container">
+          <form action="/create_post" method="post">
+              <input class ="post-title" type="text" id="post-title" name="post-title" placeholder="Title" required>
+              <textarea class ="post-content" type="text" id="post-content" name="post-content" placeholder="Type contents" required></textarea><br>
+              <p style="display: inline-flex">Select your rating: </p>
+              <span onclick="gfg(1)"
+                class="star-rating">★
+              </span>
+              <span onclick="gfg(2)"
+                class="star-rating">★
+              </span>
+              <span onclick="gfg(3)"
+                class="star-rating">★
+              </span>
+              <span onclick="gfg(4)"
+                class="star-rating">★
+              </span>
+              <span onclick="gfg(5)"
+                class="star-rating">★
+              </span> 
+              <input type="hidden" id="output-rating" name="post-rating" value="0/5" readonly>
+              <br>
+              <div class="error-container">
+                <p>{{msg}}</p>
+              </div>
+              <br>
+              <button class="post_submit" id="post_submit" type="submit">Post</button>
+          </form>
+      </div>
     </div>
 </body>
 </html>

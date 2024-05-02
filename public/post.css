@@ -1,17 +1,33 @@
 body {
-    background-color: white;
-    color: black;
-    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+    background-color: rgb(27, 28, 28);
+    color: white;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
 }
 
+.main-container {
+    margin: auto;
+    width: 50vw;
+}
+
+h1 {
+    text-align: center;
+    width: inherit;
+}
+
+span:hover {
+    cursor: pointer;
+}
 
 .post-form-container {
-    width: 50%;
-    height: 55%;
     padding: 20px;
-    border-style: groove;
-    background-color: white;
+    border-style: solid;
     border-radius: 15px;
+    border-color: rgb(78, 78, 78);
+}
+
+form {
+    margin: 0;
 }
 
 input[type=text].post-title {
@@ -19,24 +35,47 @@ input[type=text].post-title {
     border-radius: 25px;
     border-style: solid;
     display: inline-block;
-    background-color: white;
-    padding:15px;
+    padding: 15px;
     margin: 5px 0 22px 0;
+    text-decoration: none;
+    border-color: rgb(78, 78, 78);
 } 
 
 .post-content {
     width: 100%;
-    height: 50%;
+    height: 15rem;
     border-radius: 25px;
     border-style: solid;
+    border-color: rgb(78, 78, 78);
     display: inline-block;
-    background-color: white;
-    padding:15px;
-    margin: 5px 0 22px 0;
+    padding: 15px;
     resize: none;
 }
 
 .post_submit {
-    background-color: aquamarine;
-    height: 7%;
+    padding: 0.5rem 1rem;
+    background-color: #1f6cbe;
+    color: white;
+    border: none;
+    border-radius: 0.8rem;
+}
+
+.error-container {
+    padding: 0.5rem 0.7rem;
+    background-color: pink;
+    width: fit-content;
+    margin: auto;
+    border-radius: 0.5rem;
+    /* margin-top: 1rem; */
+    font-size: 14px;
+}
+
+.error-container:has(p:empty) {
+    display: none;
+}
+
+.error-container p {
+    margin: 0;
+    color: red;
+    font-weight: bold;
 }

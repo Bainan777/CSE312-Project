@@ -6,23 +6,32 @@
     <link rel="icon" type="image/x-icon" href="/public/assets/favicon.ico">
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 </head>
-<body>
+<body id="loginhtml">
     <div id="nav-placeholder"></div>
     <script>
         $(function(){
             $("#nav-placeholder").load("nav.html");
         });
     </script>
-
-    <h1>Log in to Account</h1>
-    <div class="form-container">
-        <form action="/login" method="post">
-            <input type="text" id="login_username" name="login_username" placeholder="Username" required>
-            <input type="password" id="login_password" name="login_password" placeholder="Password" required>
-            <button type="submit">Log In</button>
-        </form>
-        <p style="color: red;">{{msg}}</p>
-        <p>Don't have an account? <a href="/public/signup.html">Sign Up</a></p>
+    <div class="regis-container">
+        <h1 class="regis-title">Login</h1>
+        <div class="form-container">
+            <form action="/login" method="post">
+                <div class="regis-input">
+                    <input type="text" id="login_username" name="login_username" placeholder="Username" required>
+                </div>
+                <div class="regis-input">
+                    <input type="password" id="login_password" name="login_password" placeholder="Password" required>
+                </div>
+                <div class="error-container">
+                    <p>{{msg}}</p>
+                </div>
+                <div class="regis-input" id="submit-btn">
+                    <button type="submit">Log In</button>
+                </div>
+            </form>
+            <p>Don't have an account? <a href="/public/signup.html" class="regis-link">Sign Up</a></p>
+        </div>
     </div>
 </body>
 </html>

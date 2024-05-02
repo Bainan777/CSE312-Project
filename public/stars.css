@@ -7,7 +7,11 @@
   display:inline-block;
 }
 
-.one {
+.one, .two, .three, .four, .five {
+  color: rgb(31, 108, 190);
+}
+
+/* .one {
   color: rgb(255, 0, 0);
 }
  
@@ -25,4 +29,4 @@
  
 .five {
   color: rgb(31, 108, 190);
-}
+} */
