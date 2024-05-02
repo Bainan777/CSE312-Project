@@ -63,7 +63,7 @@ Users should also be able to view other users' accounts from the posts they make
 4. Make a post on your first account.
 5. Click on your username on your newly-made post.
 6. Check if you're redirected back to your own profile page.
-7. Check if you're still able to edit your profile, whether by changing your profile picture or editing your card contents.
+7. Check that you're still able to edit your profile, whether by changing your profile picture or editing your card contents.
 8. Swap to your 2nd account and make a post there.
 9. From your first account, refresh the page and click on the username of the 2nd post made.
 10. Check if you're redirected to that user's profile page, but are unable to edit it.
@@ -71,7 +71,7 @@ Users should also be able to view other users' accounts from the posts they make
 12. Ensure that both profile pages match up exactly.
 13. From the 2nd account, edit your profile. EX: Changing your profile picture or profile card contents.
 14. Refresh your first brower and ensure that the changes made in the 2nd account carry over to its profile page.
-15. Likewise, repeat steps 9-14, but swapping the roles of your first account and the second account.
+15. Likewise, repeat steps 4-14, but swapping the roles of your first account and the second account.
 16. Log in to your 3rd account from your 3rd browser.
 17. Click on the usernames of both posts made.
 18. Check that you're able to view both profile pages, but aren't able to edit them both.
