@@ -28,58 +28,6 @@ png_sig = bytes.fromhex('89 50 4E 47 0D 0A 1A 0A')
 gif_sig = bytes.fromhex("47 49 46 38 39 61")
 gif_sig2 = bytes.fromhex("47 49 46 38 37 61")
 
-@server.route('/nav.html')
-@server.route('/public/nav.html')
-def nav_html():
-    token = request.cookies.get("auth_token")
-
-    if token:
-        sha256 = hashlib.sha256()
-        sha256.update(token.encode())
-        hash_token = sha256.hexdigest()
-        getToken = token_collection.find({"hash-token": str(hash_token)})
-        getToken = list(getToken)
-
-        if len(getToken) != 0:
-            name = "Hello, " + getToken[0]["username"] + "! "
-            logout = "Logout"
-            visibility = "hidden"
-            href = "/logout"
-            profile_href = "/profile.html"
-
-            getPfp = user_collection.find({"username": getToken[0]["username"]})
-            getPfp = list(getPfp)
-
-            if len(getPfp) != 0:
-                pfp = getPfp[0]["profile-pic"]
-            else:
-                pfp = "default.jpg"
-        else:
-            name = "Guest"
-            logout = "Sign Up"
-            visibility = "visible"
-            href="/signup.html"
-            profile_href = "/login.html"
-            pfp = "default.jpg"
-    else:
-        name = "Guest"
-        logout = "Sign Up"
-        visibility = "visible"
-        href="/signup.html"
-        pfp = "default.jpg"
-        profile_href = "/login.html"
-
-    response = make_response(render_template('nav.html',  
-        name=name, 
-        pfp=pfp, 
-        profile_href=profile_href, 
-        logout=logout, 
-        visibility=visibility, 
-        href=href))
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["Content-Type"] = "text/html"
-    return response
-
 @server.route('/')
 @server.route('/public/index.html')
 def homepage():
@@ -131,6 +79,58 @@ def profile_css():
     response = make_response(render_template('profile-card.css'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/css"
+    return response
+
+@server.route('/nav.html')
+@server.route('/public/nav.html')
+def nav_html():
+    token = request.cookies.get("auth_token")
+
+    if token:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        getToken = token_collection.find({"hash-token": str(hash_token)})
+        getToken = list(getToken)
+
+        if len(getToken) != 0:
+            name = "Hello, " + getToken[0]["username"] + "! "
+            logout = "Logout"
+            visibility = "hidden"
+            href = "/logout"
+            profile_href = "/profile.html"
+
+            getPfp = user_collection.find({"username": getToken[0]["username"]})
+            getPfp = list(getPfp)
+
+            if len(getPfp) != 0:
+                pfp = getPfp[0]["profile-pic"]
+            else:
+                pfp = "default.jpg"
+        else:
+            name = "Guest"
+            logout = "Sign Up"
+            visibility = "visible"
+            href="/signup.html"
+            profile_href = "/login.html"
+            pfp = "default.jpg"
+    else:
+        name = "Guest"
+        logout = "Sign Up"
+        visibility = "visible"
+        href="/signup.html"
+        pfp = "default.jpg"
+        profile_href = "/login.html"
+
+    response = make_response(render_template('nav.html',  
+        name=name, 
+        pfp=pfp, 
+        profile_href=profile_href, 
+        logout=logout, 
+        visibility=visibility, 
+        href=href))
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Content-Type"] = "text/html"
     return response
 
 @server.route('/public/assets/favicon.ico')
