@@ -14,6 +14,7 @@ We added a five-star rating to our posts for posters to practically conduct revi
 
 
 <h4>Testing Procedure:</h4>
+
 1. Run docker compose up.
 2. Navigate to localhost:8080
 3. Sign up and log in with your user credentials.
@@ -30,6 +31,7 @@ We added a five-star rating to our posts for posters to practically conduct revi
 Registered users are bestowed the ability to customize their own accounts not just limited to their profile pictures. Users would be able to set their user handle, their favorite anime, as well as a description on who they are. In addition, their profile now tracks the number posts they've made.
 
 <h4>Testing Procedure:</h4>
+
 1. Run docker compose up.
 2. Navigate to localhost:8080
 3. Sign up and log in with your credentials.
@@ -41,11 +43,35 @@ Registered users are bestowed the ability to customize their own accounts not ju
 9. Check if clicking on it redirects you to a page that allows you to edit your profile card contents, down to your user handle, about me, and your favorite anime.
 10. Fill out three sections and submit your changes.
 11. Check if your profile card updates as accordingly, maintaining your exact prompts from the edit profile page.
-12. Log out and log back in.
-13. Ensure that your new profile changes are kept intact.
-14. Restart your docker container.
-15. Navigate back to your profile page and check if your profile changes still remain.
-16. Log out and make a new account.
-17. Navigate back to your profile page, and ensure that the changes made to your previous account don't affect your new account.
+12. Make at least 2 different posts.
+13. Navigate back to your profile page and ensure that the post counter on your card matches up with the number of posts you've made.
+14. Log out and log back in.
+15. Ensure that your new profile changes are kept intact.
+16. Restart your docker container.
+17. Navigate back to your profile page and check if your profile changes still remain.
+18. Log out and make a new account.
+19. Navigate back to your profile page, and ensure that the changes made to your previous account don't affect your new account.
 
 <h2>View Others' Profiles</h2>
+Users should also be able to view other users' accounts from the posts they make, but should be unable to make changes to those accounts like how they're able to edit theirs.
+
+<h4>Testing Procedure:</h4>
+
+1. Run docker compose up.
+2. Open at least three different browers and navigate to localhost:8080.
+3. Register and log into three different accounts per browser.
+4. Make a post on your first account.
+5. Click on your username on your newly-made post.
+6. Check if you're redirected back to your own profile page.
+7. Check if you're still able to edit your profile, whether by changing your profile picture or editing your card contents.
+8. Swap to your 2nd account and make a post there.
+9. From your first account, refresh the page and click on the username of the 2nd post made.
+10. Check if you're redirected to that user's profile page, but are unable to edit it.
+11. From the 2nd account, navigate to the profile page.
+12. Ensure that both profile pages match up exactly.
+13. From the 2nd account, edit your profile. EX: Changing your profile picture or profile card contents.
+14. Refresh your first brower and ensure that the changes made in the 2nd account carry over to its profile page.
+15. Likewise, repeat steps 9-14, but swapping the roles of your first account and the second account.
+16. Log in to your 3rd account from your 3rd browser.
+17. Click on the usernames of both posts made.
+18. Check that you're able to view both profile pages, but aren't able to edit them both.
