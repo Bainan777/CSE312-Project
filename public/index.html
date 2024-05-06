@@ -6,11 +6,12 @@
     <link rel="icon" type="image/x-icon" href="/public/assets/favicon.ico">
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
     <script src="https://kit.fontawesome.com/eaaa649dee.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script> <!--socket.io-->
     <script src="/public/functions.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.0/socket.io.js"></script> <!--socket.io-->
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body onload="loadToggle();">
+<body>
     <!--navbar solution from https://stackoverflow.com/questions/31954089/how-can-i-reuse-a-navigation-bar-on-multiple-pages. copy+pasting this keeps navbar on top-->
     <div id="nav-placeholder">
 
@@ -32,6 +33,21 @@
             </div>
             <div class="post-submit">
                 <a class="post-btn" href="/chat-room">Chat Room</a>
+            </div>
+            <div class="post-submit" id="view-scheduled-posts">
+                <a class="post-btn">Scheduled Posts</a>
+                <div class="overlay"></div>
+                <div class="view-scheduled-popup">
+                    <!-- <button type="button" id="exit-popup">Close</button> -->
+                    <h2>Scheduled Posts</h2>
+                    {% for post in scheduled %}
+                    <div class="sch-post-wrapper">
+                        <div class="sch-post-title">
+                            Title: {{ post['post_title']}}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
@@ -127,5 +143,17 @@
         </div><br>
     </div> 
     {% endif %}
+
+    <script>
+        const viewbutton = document.getElementById('view-scheduled-posts');
+        viewbutton.addEventListener('click', e => {
+            document.querySelector('.main-buttons').classList.toggle('open');
+        });
+
+        // const exit = document.getElementById('exit-popup');
+        // exit.addEventListener('click', e => {
+        //     document.querySelector('.main-buttons').classList.remove('open');
+        // });
+    </script>
 </body>
 </html>

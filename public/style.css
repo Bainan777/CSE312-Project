@@ -29,6 +29,7 @@ body {
     color: white;
     text-decoration: none;
     border-radius: 0.8rem;
+    cursor: pointer;
 }
 
 .checked {
@@ -214,4 +215,38 @@ body {
 
 #submit-btn button:hover {
     cursor: pointer;
+}
+
+/* viewing scheduled posts countdown */
+
+h2 {
+    margin: 0;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+  }
+
+.main-buttons.open .overlay {
+    display: initial;
+}
+
+.main-buttons.open .view-scheduled-popup {
+    display: block;
+}
+
+.view-scheduled-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(27, 28, 28);
+    padding: 1rem;
 }
