@@ -3,3 +3,4 @@ pymongo
 bcrypt
 Werkzeug
 flask-socketio
+flask-apscheduler

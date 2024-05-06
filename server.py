@@ -9,6 +9,10 @@ import random
 import html
 import os
 from flask_socketio import SocketIO, emit, send
+from flask_apscheduler import APScheduler
+from datetime import datetime, timedelta
+import pytz
+import pkg_resources
 
 mongo_client = MongoClient("mongo")
 db = mongo_client["cse-312-project"]
@@ -19,6 +23,10 @@ chat_collection = db["chat"]
 
 server = Flask(__name__, template_folder='public')
 socketio = SocketIO(server, transport = ['websocket'])
+
+scheduler = APScheduler()
+scheduler.init_app(server)
+scheduler.start()
 
 jpeg_sig = bytes.fromhex('FF D8 FF E0 00 10 4A 46 49 46 00 01')
 jpeg_sig2 = b"Exif\x00\x00"
@@ -85,13 +93,23 @@ def ip_blocking(real_IP: str):
 @server.route('/')
 @server.route('/public/index.html')
 def homepage():
-
-    posts = list(post_collection.find())
+    posts = list(post_collection.find({"scheduled": {"$not": {"$exists": True}}}))
     token = request.cookies.get("auth_token")
 
-    response = make_response(render_template('index.html', posts=posts, token=token))
+    username = 'Guest'
+
+    if token:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        getToken = token_collection.find({"hash-token": str(hash_token)})
+        getToken = list(getToken)
+        username = getToken[0]["username"]
+
+    scheduled = list(post_collection.find({'$and': [{'username':username}, {'scheduled': {'$exists': True}}]}))
+
+    response = make_response(render_template('index.html', posts=posts, token=token, scheduled=scheduled))
     response.headers["X-Content-Type-Options"] = "nosniff"
-    # emit('home_load', {'posts':posts})
     return response
 
 @server.route('/public/style.css')
@@ -610,6 +628,80 @@ def post_check():
         response.headers["Content-Type"] = "text/html"
 
     return response
+
+@server.route('/schedule_post', methods = ['POST'])
+def schedule_post():
+    token = request.cookies.get("auth_token")
+    username = "Guest"
+
+    if token != None:
+
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        record = token_collection.find_one({"hash-token": hash_token})
+
+    if token != None and record != None:
+        post_title = request.form["post-title"]
+        post_content = request.form["post-content"]
+        post_rating = request.form["post-rating"]
+        date = request.form["datetime"] 
+        date = datetime.strptime(date, '%Y-%m-%dT%H:%M') + timedelta(seconds=0)
+        date = date.strftime('%Y-%m-%dT%H:%M:%S')
+
+        username = record["username"]
+
+        if post_rating == "1/5":
+                post_rating = "1"
+        elif post_rating == "2/5":
+            post_rating = "2"
+        elif post_rating == "3/5":
+            post_rating = "3"
+        elif post_rating == "4/5":
+            post_rating = "4"
+        elif post_rating == "5/5":
+            post_rating = "5"
+        else:
+            post_rating = "0"
+
+        post_id = random.randint(1, 9999999999)
+        post_contents = {"username": record["username"], "post_title": post_title, "post_content": post_content, "id": str(post_id), "post_rating": post_rating, "upvotes": [], "downvotes": [], "scheduled": date}
+
+        post_collection.insert_one(post_contents)
+
+    # socketio.emit('post:scheduled')
+    socketio.emit('post:scheduled', {
+        "id": post_id,
+        "username": username,
+        "scheduledAt": date
+    })
+
+    print(f'\n---------- SERVER.PY ----------\n')
+    print(f'emitted id: {post_id}')
+    print(f'emitted username: {username}')
+    print(f'emitted scheduledAt: {date}')
+        
+    response = make_response(redirect("/public/index.html"))
+    return response
+
+def publish_scheduled():
+    eastern = pytz.timezone('US/Eastern')
+    now = datetime.now(tz=pytz.utc) + timedelta(seconds=0)
+    now = now.astimezone(eastern)
+    now = now.strftime(('%Y-%m-%dT%H:%M:%S'))
+    scheduled = post_collection.find({
+      "scheduled": {"$lte": now}})
+    scheduled = list(scheduled)
+    
+    for post in scheduled:
+        post_collection.find_one_and_update({"scheduled":post["scheduled"]},{"$unset":{"scheduled":""}})
+
+scheduler.add_job(
+    func=publish_scheduled, 
+    trigger="interval", 
+    seconds=1,
+    id='scheduled-posts' 
+)
 
 @socketio.on('upvote')
 def upvote_post(post_id):

@@ -1,11 +1,13 @@
-let socket = io();
+var socket = io.connect('/');
 
 function upvote(postID) {
     socket.emit('upvote', postID);
+    console.log('\n----------FUNCTIONS.JS UPVOTE----------\n')
 }
 
 function downvote(postID) {
     socket.emit('downvote', postID);
+    console.log('\n----------FUNCTIONS.JS DOWNVOTE----------\n')
 }
 
 function loadToggle() {
@@ -16,6 +18,7 @@ function loadToggle() {
 }
 
 socket.on('vote_update', function(data) {
+    console.log('\n----------FUNCTIONS.JS VOTE_UPDATE----------\n')
     let postID = data.post_id;
     let votes = document.getElementById(`vote-count-${postID}`);
     votes.textContent = data.votes;
@@ -70,3 +73,46 @@ function remove() {
         i++;
     }
 }
+
+socket.on('post:scheduled', (data) => {
+    console.log("received 'post:scheduled' event", data);
+    const scheduledAt = new Date(data.scheduledAt);
+    let postID = data.id;
+    function clearInterval(){
+        let countdownDiv = document.createElement('div');
+            countdownDiv.id = 'sch-countdown-' + postID;
+
+            let wrapper = document.querySelector('.sch-post-wrapper');
+            wrapper.appendChild(countdownDiv);
+            document.getElementById('sch-countdown-' + postID).innerHTML = `
+            <span>0</span> days 
+            <span>0</span> hours
+            <span>0</span> minutes
+            <span>0</span> seconds`
+    }
+    const countdownInterval = setInterval(() => {
+        const now = new Date();
+        const remainingTime = scheduledAt - now;
+
+        if (remainingTime <= 0) {
+            clearInterval(countdownInterval);
+        } else {
+            let days = Math.floor(remainingTime / 86400000);
+            let hours = Math.floor(remainingTime % 3600000);
+            let minutes = Math.floor(remainingTime % 60000); 
+            let seconds = Math.floor(remainingTime % 1000);
+
+            let countdownDiv = document.createElement('div');
+            countdownDiv.id = 'sch-countdown-' + postID;
+
+            let wrapper = document.querySelector('.sch-post-wrapper');
+            wrapper.appendChild(countdownDiv);
+            document.getElementById('sch-countdown-' + postID).innerHTML = `
+            <span>${days}</span> days 
+            <span>${hours}</span> hours
+            <span>${minutes}</span> minutes
+            <span>${seconds}</span> seconds`;
+        console.log(`Time remaining: ${hours}h ${minutes}m ${seconds}s`);
+        }
+    }, 1000); // Update every second
+    });

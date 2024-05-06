@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="/public/stars.css"/>
     <link rel="icon" type="image/x-icon" href="/public/assets/favicon.ico">
     <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="https://kit.fontawesome.com/eaaa649dee.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <div id="nav-placeholder"></div>
@@ -44,9 +45,92 @@
                 <p>{{msg}}</p>
               </div>
               <br>
-              <button class="post_submit" id="post_submit" type="submit">Post</button>
+              <div class="post-btns">
+                <button class="post_submit" id="post_submit" type="submit">Post</button>
+                <div class="dropdown">
+                  <button type="button" class="post_schedule">
+                    <i class="fa-solid fa-caret-down"></i>
+                  </button>
+
+                  <div class="dropdown-content">
+                    <button type="submit" class="post_submit">Post</button>
+                    <button type="button" id="schedule-popup-btn">Schedule Post</button>
+                  </div>
+
+                </div>
+              </div>
           </form>
+          <!--popup content-->
+          <div class="overlay"></div>
+          <div class="schedule-popup">
+            <div class="popup-text">
+              <form id="schedule-form" action="/schedule_post" method="post">
+                <h2>Schedule Post</h2>
+
+                <!--regular post content, hidden-->
+                <input class ="post-title" type="hidden" id="scheduled-post-title" name="post-title" placeholder="Title" required>
+                <input class ="post-content" type="hidden" id="scheduled-post-content" name="post-content" placeholder="Type contents" required></input>
+                <input type="hidden" id="output-rating" name="post-rating" value="0/5" readonly>
+
+                <!--scheduling content-->
+                <input id="datetime" name="datetime" type="datetime-local" required>
+                <br>
+                <button type="submit">Schedule</button>
+                <button type="button" id="cancel-schedule">Cancel</button>
+              </form>
+            </div>
+          </div>
       </div>
     </div>
+    <script>
+      const button = document.getElementById('schedule-popup-btn');
+      // on click for schedule post popup button
+      button.addEventListener('click', e => {
+        title = document.getElementById('post-title').value;
+        content = document.getElementById('post-content').value;
+
+        // ERROR HANDLING WHEN TRYING TO SCHEDULE POST
+        if ((title == '') || (content == '')){
+          alert('At least one required field is empty. Please fill them out before proceeding.')
+        } else {
+          // make popup show
+          document.querySelector('.post-form-container').classList.toggle('open');
+        }
+      });
+
+      // hide popup on cancel
+      const cancel = document.getElementById('cancel-schedule');
+      cancel.addEventListener('click', e => {
+        document.querySelector('.post-form-container').classList.toggle('open');
+      });
+
+      // ERROR HANDLING FOR DATE WHEN SCHEDULING POST 
+      const form = document.getElementById('schedule-form');
+
+      if (form){
+        form.addEventListener('submit', e => {
+          // e.preventDefault();
+          title = document.getElementById('post-title').value;
+          content = document.getElementById('post-content').value;
+
+          document.getElementById('scheduled-post-title').value = title;
+          document.getElementById('scheduled-post-content').value = content;
+
+          const datetime = document.getElementById('datetime').value;
+
+          if(new Date(datetime) < new Date()) {
+            alert('Scheduled date cannot be in the past!');
+          } 
+          // else {
+          //   const formData = new FormData(form);
+
+          //   fetch('/schedule_post', {
+          //     method: 'POST',
+          //     body: formData
+          //   })
+          // }
+        });
+      }
+    </script>
 </body>
 </html>

@@ -53,6 +53,10 @@ input[type=text].post-title {
 }
 
 .post_submit {
+    cursor: pointer;
+}
+
+#post_submit {
     padding: 0.5rem 1rem;
     background-color: #1f6cbe;
     color: white;
@@ -78,4 +82,69 @@ input[type=text].post-title {
     margin: 0;
     color: red;
     font-weight: bold;
+}
+
+/* scheduling posts button */
+button {
+    cursor: pointer;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.post_schedule {
+    max-width: fit-content;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    z-index: 1;
+    top: 18px;
+    text-align: left;
+    width:max-content;
+}
+
+.dropdown:hover .dropdown-content {
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+  }
+
+.schedule-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(27, 28, 28);
+    padding: 1rem;
+}
+
+.post-form-container.open .schedule-popup {
+    display: block;
+}
+
+.post-form-container.open .overlay {
+    display: initial;
+}
+
+h2 {
+    margin: 0;
+}
+
+#datetime {
+    margin: 1rem 0;
 }
