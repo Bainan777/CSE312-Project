@@ -1,6 +1,6 @@
-from flask import Flask, jsonify, render_template, make_response, request, redirect, flash
+from flask import Flask, jsonify, render_template, make_response, request, redirect, flash, abort
 from werkzeug.utils import secure_filename
-import bcrypt
+import bcrypt, time
 import uuid
 import hashlib
 from markupsafe import escape
@@ -36,6 +36,60 @@ png_sig = bytes.fromhex('89 50 4E 47 0D 0A 1A 0A')
 gif_sig = bytes.fromhex("47 49 46 38 39 61")
 gif_sig2 = bytes.fromhex("47 49 46 38 37 61")
 
+block_list = {}
+block_dict = {}
+
+@server.before_request
+def ip_checking():
+
+    real_ip = request.headers["X-Real-IP"]
+    #real_ip = request.remote_addr
+    in_block = ip_blocking(str(real_ip))
+    if in_block == True:
+        abort(429, "Too Many Requests. Please try after 30 seconds")
+
+
+def ip_blocking(real_IP: str):
+
+    if real_IP in block_list and (time.time() - block_list[real_IP]) <= 30:
+        return True
+
+    elif "time" not in block_dict:
+        block_dict["time"] = time.time()
+        IP_list = [1, False]
+        block_dict[real_IP] = IP_list
+        return False
+    
+    elif (time.time() - block_dict["time"] < 10):
+        
+        if real_IP not in block_dict:
+            IP_list = [1, False]
+            block_dict[real_IP] = IP_list
+            return False
+
+        elif real_IP in block_dict and block_dict[real_IP][1] == False:
+            IP_list = block_dict[real_IP] 
+            IP_list[0] = IP_list[0] + 1
+
+            if IP_list[0] > 50:
+                IP_list[1] = True
+                block_list[real_IP] = time.time()
+
+            block_dict[real_IP] = IP_list
+            return IP_list[1]
+        
+        else: 
+            return True
+        
+    else: 
+        block_dict.clear()
+        block_dict["time"] = time.time()
+        IP_list = [1, False]
+        block_dict[real_IP] = IP_list
+        return False
+
+
+
 @server.route('/')
 @server.route('/public/index.html')
 def homepage():
@@ -60,6 +114,7 @@ def homepage():
 
 @server.route('/public/style.css')
 def homepage_css():
+
     response = make_response(render_template('style.css'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/css"
@@ -67,6 +122,7 @@ def homepage_css():
 
 @server.route('/public/nav.css')
 def nav_css():
+
     response = make_response(render_template('nav.css'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/css"
@@ -74,6 +130,7 @@ def nav_css():
 
 @server.route('/public/chatroom.css')
 def chat_css():
+
     response = make_response(render_template('chatroom.css'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/css"
@@ -81,6 +138,7 @@ def chat_css():
 
 @server.route('/public/post.css')
 def post_css():
+
     response = make_response(render_template('post.css'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/css"
@@ -88,6 +146,7 @@ def post_css():
 
 @server.route('/public/stars.css')
 def stars_css():
+
     response = make_response(render_template('stars.css'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/css"
@@ -95,6 +154,7 @@ def stars_css():
 
 @server.route('/public/profile-card.css')
 def profile_css():
+
     response = make_response(render_template('profile-card.css'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/css"
@@ -103,6 +163,7 @@ def profile_css():
 @server.route('/nav.html')
 @server.route('/public/nav.html')
 def nav_html():
+
     token = request.cookies.get("auth_token")
 
     if token:
@@ -154,6 +215,7 @@ def nav_html():
 
 @server.route('/public/assets/favicon.ico')
 def icon():
+
     with open("public/assets/favicon.ico", "rb") as file:
         byte_string = file.read()
         response = make_response(byte_string)
@@ -209,13 +271,16 @@ def getImages(filename):
     
 @server.route('/public/functions.js')
 def homepage_js():
+
     response = make_response(render_template('functions.js'))
+    print(response)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/javascript"
     return response
 
 @server.route('/public/websocket.js')
 def websocket_js():
+
     response = make_response(render_template('websocket.js'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/javascript"
@@ -224,6 +289,7 @@ def websocket_js():
 @server.route('/signup.html')
 @server.route('/public/signup.html')
 def signup_html():
+
     response = make_response(render_template('signup.html'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
@@ -232,6 +298,7 @@ def signup_html():
 @server.route('/login.html')
 @server.route('/public/login.html')
 def login_html():
+
     response = make_response(render_template('login.html'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
@@ -240,6 +307,7 @@ def login_html():
 @server.route('/profile.html')
 @server.route('/public/profile.html')
 def profile_html():
+
     token = request.cookies.get("auth_token")
 
     if token:
@@ -293,8 +361,47 @@ def profile_html():
     response.headers["Content-Type"] = "text/html"
     return response
 
+@server.route('/public/users/<username>')
+def user_profiles(username):
+
+    token = request.cookies.get("auth_token")
+
+    if token != None:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        record = token_collection.find_one({"hash-token": hash_token})
+
+    if token != None and record != None:
+        if username == record["username"]:
+            response = make_response(redirect("/profile.html"))
+            return response
+
+    get_profile = user_collection.find_one({"username": username})
+
+    if get_profile != None:
+        username = username
+        caption = get_profile["caption"]
+        profile_pic = get_profile["profile-pic"]
+        numPosts = get_profile["numPosts"]
+        favorite = get_profile["favorite-anime"]
+        aboutme = get_profile["about-me"]
+
+        response = make_response(render_template('user_profiles.html', 
+            username=username, 
+            caption=caption, 
+            profile_pic=profile_pic, 
+            numPosts=numPosts, 
+            favorite=favorite,
+            aboutme=aboutme))
+    else:
+        response = make_response(redirect("/"))
+    
+    return response
+
 @server.route('/create_account', methods = ['POST'])
 def registration_check():
+
     msg = ""
     email = request.form["signup_email"]
     username = request.form["signup_username"]
@@ -323,6 +430,7 @@ def registration_check():
 
 @server.route('/login', methods = ['POST'])
 def login_check():
+
     msg = ""
     username = request.form["login_username"]
     password = request.form["login_password"]
@@ -355,6 +463,7 @@ def login_check():
 
 @server.route('/logout')
 def logout_check():
+
     token = request.cookies.get("auth_token")
 
     sha256 = hashlib.sha256()
@@ -369,13 +478,41 @@ def logout_check():
 
 @server.route('/create-post')
 def post_render():
+
     response = make_response(render_template('post.html'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
     return response
 
+@server.route('/edit-profile')
+def edit_render():
+
+    token = request.cookies.get("auth_token")
+
+    if token != None:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        record = token_collection.find_one({"hash-token": hash_token})
+        
+    if token != None and record != None:
+        profile = user_collection.find_one({"username": record["username"]})
+        user_handle = profile["caption"]
+        fav_anime = profile["favorite-anime"]
+        about_me = profile["about-me"]
+
+        response = make_response(render_template('editProfile.html', user_handle=user_handle, fav_anime=fav_anime, about_me=about_me))
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Content-Type"] = "text/html"
+
+        return response
+    else:
+        return make_response(redirect("/login.html"))
+
+
 @server.route('/chat-room')
 def direct_message_render():
+
     response = make_response(render_template('chatroom.html'))
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Content-Type"] = "text/html"
@@ -403,8 +540,36 @@ def get_pfp(username):
     else:
         return None
 
+@server.route('/edit_profile', methods = ['POST'])
+def edit_profile():
+
+    msg = ""
+    token = request.cookies.get("auth_token")
+
+    if token != None:
+        sha256 = hashlib.sha256()
+        sha256.update(token.encode())
+        hash_token = sha256.hexdigest()
+        record = token_collection.find_one({"hash-token": hash_token})
+
+    if token != None and record != None:
+        user_handle = request.form["user-handle"]
+        favorite_anime = request.form["favorite-anime"]
+        about_you = request.form["about-you"]
+
+        user_collection.update_one({'username': record["username"]}, {'$set': {'caption':str(user_handle), "favorite-anime": str(favorite_anime), "about-me": str(about_you)}})
+        response = make_response(redirect("/profile.html"))
+    else:
+        msg = "Only logged in users can edit their profiles. Please log in"
+        response = make_response(render_template('editProfile.html', msg = msg))
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Content-Type"] = "text/html"
+    
+    return response
+
 @server.route('/create_post', methods = ['POST'])
 def post_check():
+
     msg = ""
     token = request.cookies.get("auth_token")
 
@@ -603,6 +768,7 @@ def allowed_file(filename):
 
 @server.route('/change-pfp', methods=['POST'])
 def upload_file():
+        
     token = request.cookies.get("auth_token")
 
     if token:
@@ -725,5 +891,6 @@ def connect_handler(data_json):
 
     emit("receive_message", message_dict, broadcast= True)
 
+
 if __name__ == '__main__':
-    socketio.run(server, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True)
+    socketio.run(server, host='0.0.0.0', port=8080, allow_unsafe_werkzeug=True, debug=True)

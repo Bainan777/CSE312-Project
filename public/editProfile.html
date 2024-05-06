@@ -1,0 +1,34 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Edit Profile</title>
+    <link rel="stylesheet" type="text/css" href="/public/nav.css"/>
+    <link rel="stylesheet" type="text/css" href="/public/post.css"/>
+    <link rel="icon" type="image/x-icon" href="/public/assets/favicon.ico">
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+<body>
+    <div id="nav-placeholder"></div>
+    <script>
+        $(function(){
+            $("#nav-placeholder").load("nav.html");
+        });
+    </script>
+
+    <div class="main-container">
+      <h1>Edit Your Profile</h1>
+      <div class="post-form-container">
+          <form action="/edit_profile" method="post">
+              <input class ="post-title" type="text" id="user-handle" name="user-handle" placeholder="Your handle?" value={{user_handle}} required>
+              <input class ="post-title" type="text" id="favorite-anime" name="favorite-anime" placeholder="Your favorite anime?" value={{fav_anime}} required>
+              <textarea class ="post-content" type="text" id="about-you" name="about-you" placeholder="Tell us about yourself!" required>{{about_me}}</textarea><br>
+              <div class="error-container">
+                <p>{{msg}}</p>
+              </div>
+              <br>
+              <button class="post_submit" id="post_submit" type="submit">Post</button>
+          </form>
+      </div>
+    </div>
+</body>
+</html>

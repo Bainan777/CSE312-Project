@@ -61,9 +61,11 @@
                     <img src="/public/assets/images/profile_pictures/{{ post['username'] | get_pfp }}" class="post-pfp">
                 </div>
                 <div class="post-wrapper-child">
-                    <div class="post-username">
+
+                    <a class="post-username" href="/public/users/{{post['username']}}">
                         @{{ post['username'] }}
-                    </div>
+                    </a><br>
+
                     {% if post['post_rating'] == "5": %}
                     <span class="fa fa-star checked"></span>
                     <span class="fa fa-star checked"></span>

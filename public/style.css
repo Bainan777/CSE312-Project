@@ -18,7 +18,6 @@ body {
     display: inline-flex;
     flex-direction: row;
 }
-
 .post-submit {
     padding: 0.3rem;
 }
@@ -249,4 +248,23 @@ h2 {
     transform: translate(-50%, -50%);
     background-color: rgb(27, 28, 28);
     padding: 1rem;
+
+.post-username:link {
+    text-decoration: none;
+    color: white;
+}
+  
+.post-username:visited {
+    text-decoration: none;
+    color: white;
+}
+  
+.post-username:hover {
+    text-decoration: underline;
+    color: white;
+}
+  
+.post-username:active {
+    text-decoration: underline;
+    color: rgb(31, 108, 190);
 }
