@@ -4,7 +4,8 @@ domain name: https://cse-project777.us/
 
 
 Note: If you are testing with docker via following the testing procedure, in the chatroom.html file in public, change the socket line to socket = io({transports:['websocket']});
-Note2: Do the same thing with real_ip in server.py where remote_addr is for Docker testing purposes.
+
+Note2: Do the same thing with real_ip in server.py for lines 45-46 where remote_addr is for Docker testing purposes.
 
 <h1>Extra Features</h1>
 
